@@ -1,5 +1,5 @@
 
-name: Build
+name: Build libcryptojs-build container
 
 on:
   push:
