@@ -112,9 +112,8 @@ $(OPENSSL_DIR)/configdata.pm: gitmodules
   ifneq ("$(wildcard $(OPENSSL_DIR)/configdata.pm)","")
 	@echo +++ configdata.pm already exists
   else
-	@echo +++ updating the openssl submodule now
-  	git submodule update --init --recursive
-	@echo +++ configdata.pm does not exist, will generate it now
+	@echo +++ updating the openssl submodule, and generating configdata.pm now
+	git submodule update --init --recursive
 	mkdir -p $(MODULES_DIR)
 	cd $(OPENSSL_DIR) && ../scripts/emconfigure.sh
   endif
