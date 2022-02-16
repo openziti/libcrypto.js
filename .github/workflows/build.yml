@@ -21,6 +21,8 @@ on:
 
 jobs:
   build-the-libcryptojs-build-container:
+    if: |
+      github.event.inputs.buildContainer == 'true'
     name: 'Build the libcryptojs-build container'
     runs-on: ubuntu-latest
     env:
@@ -86,5 +88,3 @@ jobs:
             ghcr.io/openziti/libcryptojs-build:PR${{ steps.extract_pr_number.outputs.pr_number }}.${{ github.run_number }}
         if: |
           steps.extract_branch.outputs.branch != 'main'
-  if: |
-    github.event.inputs.buildContainer == 'true'
