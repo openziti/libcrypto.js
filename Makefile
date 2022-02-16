@@ -74,7 +74,7 @@ libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a
 	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) src/c/main.c src/c/certgen.c src/c/utilities.c \
 		$(OPENSSL_DIR)/libcrypto.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
 		-o $(OUT_DIR)/libcrypto.wasm.js \
-		--js-library js-library.js \
+		--js-library src/js-library.js \
 		--no-entry \
 		-s USE_PTHREADS=0 \
 		-s EXPORTED_FUNCTIONS=$(EXPORTED_FUNCTIONS) \

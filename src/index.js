@@ -8650,17 +8650,20 @@ class libcrypto {
             table: new WebAssembly.Table({ initial: 0, element: 'anyfunc' }),
 
             /**
-             * @function js_getentropy
+             * @function ziti_getentropy
              * 
-             * @param {*} buf 
-             * @param {*} buflen 
+             * When OpenSSL is cross-compiled into WebAssembly, it will link with this JS function
+             * in order to obtain entropy.  We utilize the browser's 'crypto' mechanism to generate 
+             * the random bytes.
+             * 
+             * @param {*} buf address within WASM heap to write random bytes
+             * @param {*} buflen length of buffer within WASM heap
              */
-            js_getentropy: function (buf, buflen) {
+             ziti_getentropy: function (buf, buflen) {
               let array = new Uint8Array(this.instance.memory.buffer, buf, buflen);
               crypto.getRandomValues(array);
-              console.log("js_getentropy() crypto.getRandomValues produced: ", array);
+              // console.log("ziti_getentropy() crypto.getRandomValues produced: ", array);
             },
-
           }
         )
       ).asm;

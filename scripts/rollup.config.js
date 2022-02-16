@@ -26,9 +26,9 @@ let plugins = [
   babel({
     exclude: "node_modules/**"
   }),
-  typescript({
-    typescript: require('typescript'),
-  }),
+  // typescript({
+    // typescript: require('typescript'),
+  // }),
 ];
 export default [
   {
@@ -40,7 +40,6 @@ export default [
       file: "dist/index.mjs",
       format: "esm",
     },
-    // external: ["fs", "path", "crypto"],
     external: [
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.peerDependencies || {}),
@@ -49,32 +48,30 @@ export default [
   },
   {
     input: [
-      "./src/define.mjs",
+      "./lib/js/define.mjs",
     ],
     output: {
       intro: "let ENVIRONMENT_IS_NODE = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';",
       file: "dist/define.mjs",
       format: "esm",
     },
-    // external: ["fs", "path", "crypto"],
     external: [
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.peerDependencies || {}),
     ],
     plugins,
   },
-  // {
-  //   input: "./src/js/index.mjs",
-  //   output: {
-  //     intro: "let ENVIRONMENT_IS_NODE = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';",
-  //     file: "dist/index.min.mjs",
-  //     format: "esm",
-  //   },
-  //   // external: ["fs", "path", "crypto"],
-  //   external: [
-  //     ...Object.keys(pkg.dependencies || {}),
-  //     ...Object.keys(pkg.peerDependencies || {}),
-  //   ],
-  //   plugins: plugins.concat(terser()),
-  // },
+  {
+    input: "./src/index.js",
+    output: {
+      intro: "let ENVIRONMENT_IS_NODE = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';",
+      file: "dist/index.min.mjs",
+      format: "esm",
+    },
+    external: [
+      ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.peerDependencies || {}),
+    ],
+    plugins: plugins.concat(terser()),
+  },
 ];
