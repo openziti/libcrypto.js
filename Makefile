@@ -73,7 +73,7 @@ libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a
 	mkdir -p $(MODULES_DIR)
 	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) src/c/main.c src/c/certgen.c src/c/utilities.c \
 		$(OPENSSL_DIR)/libcrypto.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
-		-o $(OUT_DIR)/keymaster.wasm.js \
+		-o $(OUT_DIR)/libcrypto.wasm.js \
 		--js-library js-library.js \
 		--no-entry \
 		-s USE_PTHREADS=0 \
