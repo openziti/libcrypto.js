@@ -45,7 +45,7 @@
     "clean": "rimraf dist/*",
     "make-clean": "./scripts/make clean",
     "make": "./scripts/make libcrypto",
-    "build": "npm-run-all clean make rollup",
+    "build": "npm-run-all clean generate:define make rollup",
     "build:rollup": "npm-run-all clean rollup -c ./scripts/rollup.config.js",
     "generate:define": "node ./scripts/generateDefines.js"
   },
