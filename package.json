@@ -1,0 +1,73 @@
+{
+  "name": "@openziti/libcrypto.js",
+  "version": "0.1.0",
+  "description": "The OpenSSL libcrypto library compiled to pure JavaScript",
+  "main": "dist/index.mjs",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "devDependencies": {
+    "@rollup/plugin-wasm": "^5.1.2",
+    "@types/node": "^17.0.8",
+    "assert": "^2.0.0",
+    "base64url": "^3.0.1",
+    "bs58": "^4.0.1",
+    "buffer": "^6.0.3",
+    "chai": "^4.3.4",
+    "cross-env": "^7.0.3",
+    "globby": "^11.0.1",
+    "mocha": "^9.0.0",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2",
+    "ripemd160": "^2.0.2",
+    "rollup": "^2.39.0",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-base64": "^1.0.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.31.1",
+    "terser": "^5.7.0",
+    "ts-loader": "^9.2.6",
+    "tsconfig-paths": "^3.12.0",
+    "typescript": "^4.5.4",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1"
+  },
+  "keywords": [
+    "crypto",
+    "openssl",
+    "libcrypto"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:dev": "env DEV=true mocha -s 300 -w --parallel --require test/utilities/hooks.js ./test",
+    "webpack": "npx webpack --config webpack.config.js",
+    "rollup": "rollup -c ./scripts/rollup.config.js",
+    "clean": "rimraf dist/*",
+    "make-clean": "./scripts/make clean",
+    "make": "./scripts/make libcrypto",
+    "build": "npm-run-all clean make rollup",
+    "build:rollup": "npm-run-all clean rollup -c ./scripts/rollup.config.js",
+    "generate:define": "node ./scripts/generateDefines.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openziti/libcrypto.js.git"
+  },
+  "author": {
+    "name": "NetFoundry",
+    "url": "http://netfoundry.io",
+    "email": "openziti@netfoundry.io"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/openziti/libcrypto.js/issues"
+  },
+  "homepage": "https://github.com/openziti/libcrypto.js",
+  "browser": {
+    "fs": false
+  },
+  "dependencies": {
+    "@types/emscripten": "^1.39.6",
+    "@wasmer/wasi": "^1.0.2"
+  }
+}
