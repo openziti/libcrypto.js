@@ -19,9 +19,6 @@ jobs:
   build-openssl-wasm:
     name: 'Build OpenSSL WASM'
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/openziti/libcryptojs-build:latest
-      options: --user 1001
     env:
       BUILD_NUMBER: ${{ github.run_number }}
     
