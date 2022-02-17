@@ -16,9 +16,17 @@ on:
         description: 'Misc tags'
 
 jobs:
+  
   build-openssl-wasm:
+    
     name: 'Build OpenSSL WASM'
+    
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [16.x]
+
     env:
       BUILD_NUMBER: ${{ github.run_number }}
     
@@ -26,6 +34,30 @@ jobs:
     
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Bump semver
+        if: github.ref == 'refs/heads/main'
+        uses: TriPSs/conventional-changelog-action@v3
+        with:
+          github-token: ${{ secrets.GH_ACTION }}
+          git-message: 'chore(release): {version}'
+          preset: 'angular'
+          tag-prefix: 'v'
+          output-file: 'CHANGELOG.md'
+          skip-on-empty: true # do not alter semver when we push 'chore: ...' commits
+          release-count: 0 # ensure changelog is generated to contain ALL updates
+
+      - name: Pull newly bumped semver
+        if: github.ref == 'refs/heads/main'
+        run: git pull
+
+      - name: Setup .npmrc
+        if: github.ref == 'refs/heads/main'
+        # Setup .npmrc file to prepare for possible publish to npm
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Checkout submodules
         uses: srt32/git-actions@v0.0.3
@@ -58,8 +90,10 @@ jobs:
       - run: npm run generate:define
       - run: mkdir -p dist
       - run: npm run make
-      - run: ls -l dist
       - run: npm run rollup
-      - run: ls -l dist
 
-
+      - name: Publish production release
+        if: github.ref == 'refs/heads/main'
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
