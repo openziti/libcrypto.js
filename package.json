@@ -50,6 +50,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:dev": "env DEV=true mocha -s 300 -w --parallel --require test/utilities/hooks.js ./test",
     "webpack": "npx webpack --config webpack.config.js",
+    "prerollup": "cp src/index.js lib/js/index.ts && cp lib/js/define.mjs lib/js/define.ts",
     "rollup": "rollup -c ./scripts/rollup.config.js",
     "clean": "rimraf dist/*",
     "make-clean": "./scripts/make clean",
