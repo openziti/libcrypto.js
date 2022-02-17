@@ -54,5 +54,12 @@ jobs:
           node-version: '16'
       - run: npm install
       - run: npm run make-clean
-      - run: npm run build
+      - run: npm run clean
+      - run: npm run generate:define
+      - run: ls -l dist
+      - run: npm run make
+      - run: ls -l dist
+      - run: npm run rollup
+      - run: ls -l dist
+
 
