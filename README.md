@@ -13,7 +13,9 @@ Learn about Ziti at [ziti.dev](https://ziti.dev)
 
 [![WASM-Build](https://github.com/openziti/libcrypto.js/workflows/Build-OpenSSL-WASM/badge.svg?branch=main)]()
 [![emcc-Build](https://github.com/openziti/libcrypto.js/workflows/Build-emcc-Container/badge.svg?branch=main)]()
+[![CodeQL](https://github.com/openziti/libcrypto.js/workflows/CodeQL/badge.svg?branch=main)]()
 [![Issues](https://img.shields.io/github/issues-raw/openziti/libcrypto.js)]()
+
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![LOC](https://img.shields.io/tokei/lines/github/openziti/libcrypto.js)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=rounded)](CONTRIBUTING.md)
