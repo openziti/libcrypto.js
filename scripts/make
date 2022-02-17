@@ -1,0 +1,7 @@
+#!/bin/bash
+
+PROJECT_ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+set -e
+
+docker run --rm --volume "${PROJECT_ROOT_DIR}":/opt/openssljs ghcr.io/openziti/libcryptojs-build:latest make ${@}
