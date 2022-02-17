@@ -1,5 +1,5 @@
 
-name: Build libcryptojs-build container
+name: Build-emcc-Container
 
 on:
   push:
