@@ -4,6 +4,7 @@ import libcryptoWASM from "../dist/libcrypto.wasm.js";
 
 
 import {
+  V_ASN1_BIT_STRING,
   NID_secp256k1,
   NID_X9_62_prime256v1,
   NID_X9_62_id_ecPublicKey,
