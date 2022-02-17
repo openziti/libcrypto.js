@@ -2,6 +2,10 @@
   "name": "@openziti/libcrypto-js",
   "version": "0.2.0",
   "description": "The OpenSSL libcrypto library compiled to pure JavaScript",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "main": "dist/index.mjs",
   "type": "module",
   "types": "dist/index.d.ts",
