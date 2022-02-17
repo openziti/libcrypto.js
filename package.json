@@ -1,6 +1,6 @@
 {
   "name": "@openziti/libcrypto-js",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "The OpenSSL libcrypto library compiled to pure JavaScript",
   "files": [
     "dist",
@@ -37,6 +37,11 @@
     "webpack-cli": "^4.9.1"
   },
   "keywords": [
+    "ziti",
+    "browZer",
+    "browser",
+    "js",
+    "javascript",
     "crypto",
     "openssl",
     "libcrypto"
