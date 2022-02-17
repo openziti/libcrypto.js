@@ -2,7 +2,7 @@
 `libcrypto.js`
 ==============
 
-The OpenSSL libcrypto library compiled to Webassembly and pure JavaScript, with convenient wrappers.
+The OpenSSL libcrypto library compiled to WebAssembly and pure JavaScript, with convenient wrappers.
 This component is one of many used in OpenZiti's `browZer` solution for delivering secure browser-based 
 web applications over a [Ziti Network](https://ziti.dev/about)
 
@@ -11,8 +11,8 @@ web applications over a [Ziti Network](https://ziti.dev/about)
 Learn about Ziti at [ziti.dev](https://ziti.dev)
 
 
-[![WASM-Build](https://github.com/openziti/ziti-http-agent/workflows/Build-OpenSSL-WASM/badge.svg?branch=main)]()
-[![emcc-Build](https://github.com/openziti/ziti-http-agent/workflows/Build-emcc-Container/badge.svg?branch=main)]()
+[![WASM-Build](https://github.com/openziti/libcrypto.js/workflows/Build-OpenSSL-WASM/badge.svg?branch=main)]()
+[![emcc-Build](https://github.com/openziti/libcrypto.js/workflows/Build-emcc-Container/badge.svg?branch=main)]()
 [![Issues](https://img.shields.io/github/issues-raw/openziti/libcrypto.js)]()
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![LOC](https://img.shields.io/tokei/lines/github/openziti/libcrypto.js)]()
