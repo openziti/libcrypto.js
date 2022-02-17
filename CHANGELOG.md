@@ -1,3 +1,12 @@
+# [0.4.0](https://github.com/openziti/libcrypto.js/compare/v0.3.0...v0.4.0) (2022-02-17)
+
+
+### Features
+
+* publishing tweaks ([#7](https://github.com/openziti/libcrypto.js/issues/7)) ([dc5c9c4](https://github.com/openziti/libcrypto.js/commit/dc5c9c42486e9611b78972f73624fa92b06d7310))
+
+
+
 # [0.3.0](https://github.com/openziti/libcrypto.js/compare/v0.2.0...v0.3.0) (2022-02-17)
 
 
