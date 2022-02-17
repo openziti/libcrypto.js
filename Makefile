@@ -70,7 +70,6 @@ libcrypto.js: libcrypto.wasm
 
 libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a
 	@echo +++ libcrypto.wasm step
-	mkdir -p $(MODULES_DIR)
 	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) src/c/main.c src/c/certgen.c src/c/utilities.c \
 		$(OPENSSL_DIR)/libcrypto.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
 		-o $(OUT_DIR)/libcrypto.wasm.js \
@@ -114,7 +113,6 @@ $(OPENSSL_DIR)/configdata.pm: gitmodules
   else
 	@echo +++ updating the openssl submodule, and generating configdata.pm now
 	git submodule update --init --recursive
-	mkdir -p $(MODULES_DIR)
 	cd $(OPENSSL_DIR) && ../scripts/emconfigure.sh
   endif
 

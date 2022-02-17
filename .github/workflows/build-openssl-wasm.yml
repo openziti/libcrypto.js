@@ -56,7 +56,7 @@ jobs:
       - run: npm run make-clean
       - run: npm run clean
       - run: npm run generate:define
-      - run: ls -l dist
+      - run: mkdir -p dist
       - run: npm run make
       - run: ls -l dist
       - run: npm run rollup
