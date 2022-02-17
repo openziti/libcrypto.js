@@ -1,7 +1,7 @@
 
 import crypto from 'crypto';
 import fs from 'fs';
-import globby from 'globby';
+import {globby} from 'globby';
 
 
 (async () => {
