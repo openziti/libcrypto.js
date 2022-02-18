@@ -1,3 +1,12 @@
+# [0.5.0](https://github.com/openziti/libcrypto.js/compare/v0.4.0...v0.5.0) (2022-02-18)
+
+
+### Features
+
+* typescript client support ([#8](https://github.com/openziti/libcrypto.js/issues/8)) ([672da36](https://github.com/openziti/libcrypto.js/commit/672da36657625ac1ebebed216478d36e0e17745b))
+
+
+
 # [0.4.0](https://github.com/openziti/libcrypto.js/compare/v0.3.0...v0.4.0) (2022-02-17)
 
 
