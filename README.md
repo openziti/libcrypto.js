@@ -4,7 +4,7 @@
 
 The OpenSSL libcrypto library compiled to WebAssembly and pure JavaScript, with convenient wrappers.
 This component is one of many used in OpenZiti's `browZer` solution for delivering secure browser-based 
-web applications over a [Ziti Network](https://ziti.dev/about)
+web applications over a zero trust [Ziti Network](https://ziti.dev/about)
 
 <img src="https://ziti.dev/wp-content/uploads/2020/02/ziti.dev_.logo_.png" width="200" />
 
@@ -34,7 +34,7 @@ Learn about Ziti at [ziti.dev](https://ziti.dev)
 <!-- /TOC -->
 
 
-## Motivation
+## Overview
 
 tbd
 

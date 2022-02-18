@@ -72,7 +72,7 @@ libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a
 	@echo +++ libcrypto.wasm step
 	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) src/c/main.c src/c/certgen.c src/c/utilities.c \
 		$(OPENSSL_DIR)/libcrypto.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
-		-o $(OUT_DIR)/libcrypto.wasm.js \
+		-o lib/libcrypto.wasm.js \
 		--js-library src/js-library.js \
 		--no-entry \
 		-s USE_PTHREADS=0 \

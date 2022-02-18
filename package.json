@@ -1,6 +1,6 @@
 {
   "name": "@openziti/libcrypto-js",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "The OpenSSL libcrypto library compiled to pure JavaScript",
   "files": [
     "dist",
@@ -32,12 +32,11 @@
     "ts-loader": "^9.2.6",
     "tsconfig-paths": "^3.12.0",
     "typescript": "^4.5.4",
-    "url-loader": "^4.1.1",
-    "webpack": "^5.65.0",
-    "webpack-cli": "^4.9.1"
+    "url-loader": "^4.1.1"
   },
   "keywords": [
     "ziti",
+    "zero trust",
     "browZer",
     "browser",
     "js",
@@ -49,9 +48,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:dev": "env DEV=true mocha -s 300 -w --parallel --require test/utilities/hooks.js ./test",
-    "webpack": "npx webpack --config webpack.config.js",
+    "prerollup-delete": "cp src/index.js lib/index.ts && cp lib/define.mjs lib/define.ts",
+    "prerollup": "rm -f lib/index.js && cat lib/define.mjs src/index.js >> lib/index.js && cp lib/index.js lib/index.ts",
     "rollup": "rollup -c ./scripts/rollup.config.js",
-    "clean": "rimraf dist/*",
+    "clean": "rimraf lib/* && rimraf dist/*",
     "make-clean": "./scripts/make clean",
     "make": "./scripts/make libcrypto",
     "build": "npm-run-all clean generate:define make rollup",
