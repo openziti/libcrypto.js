@@ -1,52 +1,5 @@
-globalThis.__dirname = "/";
 
-import libcryptoWASM from "../dist/libcrypto.wasm.js";
-
-
-import {
-  V_ASN1_BIT_STRING,
-  NID_secp256k1,
-  NID_X9_62_prime256v1,
-  NID_X9_62_id_ecPublicKey,
-  POINT_CONVERSION_UNCOMPRESSED,
-  POINT_CONVERSION_COMPRESSED,
-  NID_basic_constraints,
-  NID_key_usage,
-  NID_ext_key_usage,
-  NID_subject_key_identifier,
-  NID_authority_key_identifier,
-  NID_subject_alt_name,
-  PEM_TYPE_ENCRYPTED,
-  PEM_TYPE_CLEAR,
-  NID_x509Crl,
-  NID_x509Certificate,
-  NID_certBag,
-} from "../lib/define.mjs";
-
-export {
-  POINT_CONVERSION_COMPRESSED,
-  POINT_CONVERSION_UNCOMPRESSED,
-  POINT_CONVERSION_HYBRID,
-  NID_x509Crl,
-  NID_x509Certificate,
-  NID_certBag,
-  V_ASN1_BIT_STRING,
-  PEM_TYPE_ENCRYPTED,
-  PEM_TYPE_CLEAR,
-  NID_secp256k1,
-  NID_X9_62_prime256v1,
-  NID_X25519,
-  NID_ED25519,
-  NID_X9_62_id_ecPublicKey,
-  NID_Private,
-  NID_sha256,
-  NID_basic_constraints,
-  NID_key_usage,
-  NID_ext_key_usage,
-  NID_subject_key_identifier,
-  NID_authority_key_identifier,
-  NID_subject_alt_name,
-} from "../lib/define.mjs";
+import libcryptoWASM from "../lib/libcrypto.wasm.js";
 
 /**
  *

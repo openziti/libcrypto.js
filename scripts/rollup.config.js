@@ -34,7 +34,7 @@ let plugins = [
 export default [
   {
     input: [
-      "./src/index.js",
+      "./lib/index.js",
     ],
     output: {
       intro: "let ENVIRONMENT_IS_NODE = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';",
@@ -49,30 +49,17 @@ export default [
   },
   {
     input: [
-      "./lib/define.mjs",
+      "./lib/index.js",
     ],
     output: {
       intro: "let ENVIRONMENT_IS_NODE = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';",
-      file: "dist/define.mjs",
+      file: "dist/index.min.mjs",
       format: "esm",
     },
     external: [
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.peerDependencies || {}),
     ],
-    plugins,
+    plugins: plugins.concat(terser()),
   },
-  // {
-  //   input: "./src/index.js",
-  //   output: {
-  //     intro: "let ENVIRONMENT_IS_NODE = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';",
-  //     file: "dist/index.min.mjs",
-  //     format: "esm",
-  //   },
-  //   external: [
-  //     ...Object.keys(pkg.dependencies || {}),
-  //     ...Object.keys(pkg.peerDependencies || {}),
-  //   ],
-  //   plugins: plugins.concat(terser()),
-  // },
 ];
