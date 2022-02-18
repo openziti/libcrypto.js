@@ -26,14 +26,15 @@ let plugins = [
   babel({
     exclude: "node_modules/**"
   }),
-  // typescript({
-    // typescript: require('typescript'),
-  // }),
+  typescript({
+    typescript: require('typescript'),
+    tsconfig: "tsconfig.json",
+  }),
 ];
 export default [
   {
     input: [
-      "./src/index.js",
+      "./lib/index.js",
     ],
     output: {
       intro: "let ENVIRONMENT_IS_NODE = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';",
@@ -48,21 +49,8 @@ export default [
   },
   {
     input: [
-      "./lib/js/define.mjs",
+      "./lib/index.js",
     ],
-    output: {
-      intro: "let ENVIRONMENT_IS_NODE = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';",
-      file: "dist/define.mjs",
-      format: "esm",
-    },
-    external: [
-      ...Object.keys(pkg.dependencies || {}),
-      ...Object.keys(pkg.peerDependencies || {}),
-    ],
-    plugins,
-  },
-  {
-    input: "./src/index.js",
     output: {
       intro: "let ENVIRONMENT_IS_NODE = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';",
       file: "dist/index.min.mjs",
