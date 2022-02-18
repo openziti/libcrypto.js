@@ -51,8 +51,8 @@ import {globby} from 'globby';
         "POINT_CONVERSION_UNCOMPRESSED = 4",
         "POINT_CONVERSION_HYBRID = 6"
     ]);
-    if (!fs.existsSync('./lib/js')) {
-        fs.mkdirSync('./lib/js', { recursive: true });
+    if (!fs.existsSync('./lib')) {
+        fs.mkdirSync('./lib', { recursive: true });
     }
-    fs.writeFileSync('./lib/js/define.mjs', `export const ${DEFINE_ARRAY.join(",\n")};`);
+    fs.writeFileSync('./lib/define.mjs', `export const ${DEFINE_ARRAY.join(",\n")};`);
 })();

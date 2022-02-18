@@ -21,7 +21,7 @@ import {
   NID_x509Crl,
   NID_x509Certificate,
   NID_certBag,
-} from "../lib/js/define.mjs";
+} from "../lib/define.mjs";
 
 export {
   POINT_CONVERSION_COMPRESSED,
@@ -46,7 +46,7 @@ export {
   NID_subject_key_identifier,
   NID_authority_key_identifier,
   NID_subject_alt_name,
-} from "../lib/js/define.mjs";
+} from "../lib/define.mjs";
 
 /**
  *

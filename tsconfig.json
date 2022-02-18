@@ -11,7 +11,7 @@
       "allowSyntheticDefaultImports": true,
     },
     "include": [
-      "lib/js/*",
+      "lib/*",
     ],
     "exclude": ["node_modules"],
   }

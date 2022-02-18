@@ -49,7 +49,7 @@ export default [
   },
   {
     input: [
-      "./lib/js/define.mjs",
+      "./lib/define.mjs",
     ],
     output: {
       intro: "let ENVIRONMENT_IS_NODE = typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';",
