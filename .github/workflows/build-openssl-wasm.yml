@@ -91,6 +91,7 @@ jobs:
       - run: mkdir -p dist
       - run: npm run make
       - run: npm run rollup
+      - run: npm test
 
       - name: Publish production release
         if: github.ref == 'refs/heads/main'

@@ -37,6 +37,7 @@ EXPORTED_FUNCTIONS = "[\
   '_createBuffer',\
   '_destroyBuffer',\
   '_generateKey',\
+  '_generateECKey',\
   '_convertKey'\
 ]"
 
@@ -68,9 +69,11 @@ libcrypto-wrappers: $(MODULES_DIR)/libcrypto-wrappers.js
 libcrypto.js: libcrypto.wasm
 	@echo +++ libcrypto.js step
 
+# 	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) src/c/main.c src/c/certgen.c src/c/utilities.c \
+
 libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a
 	@echo +++ libcrypto.wasm step
-	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) src/c/main.c src/c/certgen.c src/c/utilities.c \
+	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) src/c/*.c \
 		$(OPENSSL_DIR)/libcrypto.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
 		-o lib/libcrypto.wasm.js \
 		--js-library src/js-library.js \
