@@ -272,16 +272,9 @@ class libcrypto {
   }
 
   /**
-   * Convert key to serialization format
+   * Generate an RSA key
    *
    * @function generateKey
-   * @param {Object} settings - The configuration object to tell OpenSSL how to format the key
-   * @param {buffer|arrayBuffer|string|string[]|Object} [settings.key=null] - Key, default is current instance key. If not null, replaces key.
-   * @param {number} [settings.curve=NID_secp256k1] - Numerical ID (NID) for the Elliptic Curve (EC) to use
-   * @param {number} [settings.outputtype=NID_X9_62_id_ecPublicKey] - NID for OpenSSL output type
-   * @param {number} [settings.outformat=V_ASN1_BIT_STRING] - NID for OpenSSL output format
-   * @param {number} [settings.compressed=POINT_CONVERSION_UNCOMPRESSED] - Which X9.62 (ECDSA) form, for encoding an EC point
-   * @param {string} [settings.password=null] - Password to use
    * @return {string} String representation of formatted key
    */
   generateKey({
@@ -294,6 +287,22 @@ class libcrypto {
     return pstring;
   }
 
+  /**
+   * Generate an EC key
+   *
+   * @function generateECKey
+   * @return {string} String representation of formatted key
+   */
+     generateECKey({
+      /* no parms yet */
+    }) {
+      if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+      let memorylocation = this.instance.generateECKey();
+      let pstring = this.readString(memorylocation);
+      this.cleanupReferences();
+      return pstring;
+    }
+  
   /**
    * Create a certificate
    *
