@@ -1,3 +1,12 @@
+# [0.6.0](https://github.com/openziti/libcrypto.js/compare/v0.5.0...v0.6.0) (2022-02-21)
+
+
+### Features
+
+* EC, and initial test automation ([#12](https://github.com/openziti/libcrypto.js/issues/12)) ([ff8bb02](https://github.com/openziti/libcrypto.js/commit/ff8bb0209207330dcae10d9c0f56c918b5ba9b6e))
+
+
+
 # [0.5.0](https://github.com/openziti/libcrypto.js/compare/v0.4.0...v0.5.0) (2022-02-18)
 
 
