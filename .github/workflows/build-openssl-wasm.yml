@@ -44,7 +44,7 @@ jobs:
           preset: 'angular'
           tag-prefix: 'v'
           output-file: 'CHANGELOG.md'
-          skip-on-empty: true # do not alter semver when we push 'chore: ...' commits
+          skip-on-empty: false # alter semver even when we push 'chore: ...' commits
           release-count: 0 # ensure changelog is generated to contain ALL updates
 
       - name: Pull newly bumped semver
@@ -94,7 +94,7 @@ jobs:
       - run: npm test
 
       - name: Publish production release
-        if: github.ref == 'refs/heads/main'
+        if: (github.ref == 'refs/heads/main' && github.actor != 'depbot') # do not publish if only doing a dep update initiated by dependabot
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
