@@ -2,6 +2,7 @@ import { wasm } from "@rollup/plugin-wasm";
 import { terser } from "rollup-plugin-terser";
 import typescript from 'rollup-plugin-typescript2'
 import babel from "rollup-plugin-babel";
+import esformatter from 'rollup-plugin-esformatter';
 
 
 import pkg from '../package.json'
@@ -29,6 +30,11 @@ let plugins = [
   typescript({
     typescript: require('typescript'),
     tsconfig: "tsconfig.json",
+  }),
+  esformatter({
+    indent: {
+      value: '  ',
+    },
   }),
 ];
 export default [
