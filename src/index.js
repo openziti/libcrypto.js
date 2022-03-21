@@ -3,102 +3,105 @@ import libcryptoWASM from "../lib/libcrypto.wasm.js";
 
 /**
  *
- * Class representing a libcrypto instance.
+ * Class representing a LibCrypto instance.
  *
  */
-class libcrypto {
-  mallocBufferAddresses = [];
-  wasi = null;
-  wasiBytes = null;
-  instance = null;
-  init = false;
-  key = null;
-  maxRead = 1024*64;
+class LibCrypto {
 
   /**
-   * The key usage extension defines the purpose (e.g., encipherment,
-   * signature, certificate signing) of the key contained in the
-   * certificate.
-   *
-   * {@link https://tools.ietf.org/html/rfc5280#section-4.2.1.3}
-   * @namespace
-   * @property {Boolean} digitalSignature - Subject Public Key (SPK) is used for verifying digital signatures
-   * @property {Boolean} nonRepudiation - SPK used to verify digital signatures
-   * @property {Boolean} keyEncipherment - SPK used for enciphering private or secret keys
-   * @property {Boolean} dataEncipherment - SPK used for enciphering raw user data w/o an intermediate symmetric cipher
-   * @property {Boolean} keyAgreement - SPK used for key agreement, used with encipherOnly / decipherOnly
-   * @property {Boolean} keyCertSign - SPK used for verifying signatures on public key certificates
-   * @property {Boolean} cRLSign - SPK used for verifying signatures on certificate revocation lists
-   * @property {Boolean} encipherOnly - If keyAgreement set, enciphering data while performing key agreement
-   * @property {Boolean} decipherOnly - If keyAgreement set, deciphering data while performing key agreement
+   *  LibCrypto ctor
    */
-  keyUsage = {
-    digitalSignature: false,
-    nonRepudiation: false,
-    keyEncipherment: false,
-    dataEncipherment: false,
-    keyAgreement: false,
-    keyCertSign: false,
-    cRLSign: false,
-    encipherOnly: false,
-    decipherOnly: false,
-  };
+  constructor() {
+
+    this.mallocBufferAddresses = [];
+    this.wasi = null;
+    this.wasiBytes = null;
+    this.instance = null;
+    this.init = false;
+    this.key = null;
+    this.maxRead = 1024*64;
+  
+   /**
+    * The key usage extension defines the purpose (e.g., encipherment,
+    * signature, certificate signing) of the key contained in the
+    * certificate.
+    *
+    * {@link https://tools.ietf.org/html/rfc5280#section-4.2.1.3}
+    * @namespace
+    * @property {Boolean} digitalSignature - Subject Public Key (SPK) is used for verifying digital signatures
+    * @property {Boolean} nonRepudiation - SPK used to verify digital signatures
+    * @property {Boolean} keyEncipherment - SPK used for enciphering private or secret keys
+    * @property {Boolean} dataEncipherment - SPK used for enciphering raw user data w/o an intermediate symmetric cipher
+    * @property {Boolean} keyAgreement - SPK used for key agreement, used with encipherOnly / decipherOnly
+    * @property {Boolean} keyCertSign - SPK used for verifying signatures on public key certificates
+    * @property {Boolean} cRLSign - SPK used for verifying signatures on certificate revocation lists
+    * @property {Boolean} encipherOnly - If keyAgreement set, enciphering data while performing key agreement
+    * @property {Boolean} decipherOnly - If keyAgreement set, deciphering data while performing key agreement
+    */
+    this.keyUsage = {
+      digitalSignature: false,
+      nonRepudiation: false,
+      keyEncipherment: false,
+      dataEncipherment: false,
+      keyAgreement: false,
+      keyCertSign: false,
+      cRLSign: false,
+      encipherOnly: false,
+      decipherOnly: false,
+    };
+
+    /**
+     * This extension indicates one or more purposes for which the certified
+     * public key may be used, in addition to or in place of the basic
+     * purposes indicated in the key usage extension
+     *
+     * {@link https://tools.ietf.org/html/rfc5280#section-4.2.1.12}
+     * {@link https://tools.ietf.org/html/rfc6071#section-2.4}
+     *
+     * @namespace
+     * @property {Boolean} serverAuth - TLS WWW server authentication
+     * @property {Boolean} clientAuth - TLS WWW server authentication
+     * @property {Boolean} codeSigning - Signing of downloadable executable code
+     * @property {Boolean} emailProtection - Email protection
+     * @property {Boolean} timeStamping - Binding the hash of an object to a time
+     * @property {Boolean} OCSPSigning - Signing OCSP responses
+     * @property {Boolean} ipsecIKE - Used for IP Security (IPsec) and Internet Key Exchange (IKE)
+     * @property {Boolean} msCodeInd - Microsoft Individual Code Signing (authenticode)
+     * @property {Boolean} msCodeCom - Microsoft Commercial Code Signing (authenticode)
+     * @property {Boolean} msCTLSign - Microsoft Trust List Signing
+     * @property {Boolean} msEFS - Microsoft Encrypting File System
+     */
+    this.extKeyUsage = {
+      serverAuth: false,
+      clientAuth: false,
+      codeSigning: false,
+      emailProtection: false,
+      timeStamping: false,
+      OCSPSigning: false,
+      ipsecIKE: false,
+      msCodeInd: false,
+      msCodeCom: false,
+      msCTLSign: false,
+      msEFS: false,
+    };
+
+    /**
+     * The subject alternative name extension allows identities to be bound
+     * to the subject of the certificate.
+     *
+     * {@link https://tools.ietf.org/html/rfc5280#section-4.2.1.6}
+     */
+    this.subjectAlternativeName = {
+      URI: [],
+      DNS: [],
+      IP: [],
+      email: [],
+    };
+
+  }
 
   /**
-   * This extension indicates one or more purposes for which the certified
-   * public key may be used, in addition to or in place of the basic
-   * purposes indicated in the key usage extension
-   *
-   * {@link https://tools.ietf.org/html/rfc5280#section-4.2.1.12}
-   * {@link https://tools.ietf.org/html/rfc6071#section-2.4}
-   *
-   * @namespace
-   * @property {Boolean} serverAuth - TLS WWW server authentication
-   * @property {Boolean} clientAuth - TLS WWW server authentication
-   * @property {Boolean} codeSigning - Signing of downloadable executable code
-   * @property {Boolean} emailProtection - Email protection
-   * @property {Boolean} timeStamping - Binding the hash of an object to a time
-   * @property {Boolean} OCSPSigning - Signing OCSP responses
-   * @property {Boolean} ipsecIKE - Used for IP Security (IPsec) and Internet Key Exchange (IKE)
-   * @property {Boolean} msCodeInd - Microsoft Individual Code Signing (authenticode)
-   * @property {Boolean} msCodeCom - Microsoft Commercial Code Signing (authenticode)
-   * @property {Boolean} msCTLSign - Microsoft Trust List Signing
-   * @property {Boolean} msEFS - Microsoft Encrypting File System
-   */
-  extKeyUsage = {
-    serverAuth: false,
-    clientAuth: false,
-    codeSigning: false,
-    emailProtection: false,
-    timeStamping: false,
-    OCSPSigning: false,
-    ipsecIKE: false,
-    msCodeInd: false,
-    msCodeCom: false,
-    msCTLSign: false,
-    msEFS: false,
-  };
-
-  /**
-   * The subject alternative name extension allows identities to be bound
-   * to the subject of the certificate.
-   *
-   * {@link https://tools.ietf.org/html/rfc5280#section-4.2.1.6}
-   */
-  subjectAlternativeName = {
-    URI: [],
-    DNS: [],
-    IP: [],
-    email: [],
-  };
-
-  /**
-   * Create a libcrypto instance.
-   */
-  constructor() { }
-
-  /**
-   * Initialize the libcrypto instance.
+   * Initialize the LibCrypto instance.
    * Compiles the core WebAssembly System Interface (WASI) compliant WebAssembly binary.
    *
    * @async
@@ -106,6 +109,7 @@ class libcrypto {
    * @return {undefined}
    */
   async initialize() {
+    
     if (!this.init) {
       this.instance = libcryptoWASM;
       this.instance = (
@@ -502,6 +506,6 @@ class libcrypto {
 }
 
 export {
-  libcrypto
+  LibCrypto
 };
 
