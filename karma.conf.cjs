@@ -12,7 +12,7 @@ module.exports = function(config) {
       files: [
         { 
           type: "module", 
-          pattern: "test/*.mjs" 
+          pattern: "test/*.js" 
         },
       ],
       

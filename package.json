@@ -3,12 +3,12 @@
   "version": "0.6.11",
   "description": "The OpenSSL libcrypto library compiled to pure JavaScript",
   "files": [
-    "dist",
-    "README.md"
+    "dist"
   ],
-  "main": "dist/index.mjs",
+  "main": "dist/esm/index.js",
+  "module": "dist/esm/index.js",
   "type": "module",
-  "types": "dist/index.d.ts",
+  "types": "dist/esm/index.d.ts",
   "devDependencies": {
     "@open-wc/karma-esm": "^4.0.0",
     "@rollup/plugin-wasm": "^5.1.2",
@@ -76,9 +76,6 @@
     "url": "https://github.com/openziti/libcrypto.js/issues"
   },
   "homepage": "https://github.com/openziti/libcrypto.js",
-  "browser": {
-    "fs": false
-  },
   "dependencies": {
     "@types/emscripten": "^1.39.6",
     "@wasmer/wasi": "^1.0.2"

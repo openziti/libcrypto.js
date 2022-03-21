@@ -501,5 +501,7 @@ class libcrypto {
   }
 }
 
-export default libcrypto;
+export {
+  libcrypto
+};
 
