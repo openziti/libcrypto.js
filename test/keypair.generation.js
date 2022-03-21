@@ -1,18 +1,11 @@
 
-
-// import libCrypto, {
-// } from "../dist/index.mjs";
-// import {ZitiBrowzerLibCrypto} from "../dist/index.umd.js";
-import {libcrypto} from "../dist/esm/index.js";
-console.log(libcrypto);
-
-
+import {LibCrypto} from "../dist/esm/index.js";
 
 describe("public key and address from private key", function () {
   this.timeout(500);
 
   beforeEach(async function () {
-    this.libCrypto = new libcrypto();
+    this.libCrypto = new LibCrypto();
     await this.libCrypto.initialize();
   });
 
