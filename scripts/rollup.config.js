@@ -1,8 +1,8 @@
 import { wasm } from "@rollup/plugin-wasm";
-import { terser } from "rollup-plugin-terser";
+// import { terser } from "rollup-plugin-terser";
 import typescript from 'rollup-plugin-typescript2'
 import babel from "rollup-plugin-babel";
-import esformatter from 'rollup-plugin-esformatter';
+// import esformatter from 'rollup-plugin-esformatter';
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 
 
@@ -86,7 +86,10 @@ export default [
   //
   {
     input,
-    plugins: plugins.concat(nodeResolve(), esformatter({indent: { value: '  '}})),
+    plugins: plugins.concat(
+      nodeResolve(), 
+      // esformatter({indent: { value: '  '}})
+    ),
     output: [
       {
         dir: "dist/esm",
