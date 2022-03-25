@@ -1,6 +1,6 @@
 {
   "name": "@openziti/libcrypto-js",
-  "version": "0.6.15",
+  "version": "0.6.16",
   "description": "The OpenSSL libcrypto library compiled to pure JavaScript",
   "files": [
     "dist"
