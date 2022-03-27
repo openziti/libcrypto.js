@@ -222,7 +222,7 @@ class LibCrypto {
    * Load key from Buffer
    *
    * @function loadKey
-   * @param {buffer|arrayBuffer|string|string[]|Object} [key=buffer] - Buffer to load
+   * @param {Buffer|ArrayBuffer|string|string[]|Object} [key=buffer] - Buffer to load
    * @return {number} Memory offset pointer
    */
   loadKey(key = Buffer.from([])) {
@@ -247,7 +247,7 @@ class LibCrypto {
    *
    * @function convertKey
    * @param {Object} settings - The configuration object to tell OpenSSL how to format the key
-   * @param {buffer|arrayBuffer|string|string[]|Object} [settings.key=null] - Key, default is current instance key. If not null, replaces key.
+   * @param {Buffer|ArrayBuffer|string|string[]|Object} [settings.key=null] - Key, default is current instance key. If not null, replaces key.
    * @param {number} [settings.curve=NID_secp256k1] - Numerical ID (NID) for the Elliptic Curve (EC) to use
    * @param {number} [settings.outputtype=NID_X9_62_id_ecPublicKey] - NID for OpenSSL output type
    * @param {number} [settings.outformat=V_ASN1_BIT_STRING] - NID for OpenSSL output format
@@ -312,7 +312,7 @@ class LibCrypto {
    *
    * @function createCertificate
    * @param {Object} settings - The configuration object to tell OpenSSL how to format the key
-   * @param {buffer|arrayBuffer|string|string[]|Object} [settings.key=null] - Key, default is current instance key. If not null, replaces key.
+   * @param {Buffer|ArrayBuffer|string|string[]|Object} [settings.key=null] - Key, default is current instance key. If not null, replaces key.
    * @param {number} [settings.curve=NID_secp256k1] - Numerical ID (NID) for the Elliptic Curve (EC) to use
    * @param {number} [settings.compressed=POINT_CONVERSION_UNCOMPRESSED] - Which X9.62 (ECDSA) form, for encoding an EC point
    * @param {string} [settings.password=null] - Password to use
@@ -414,7 +414,7 @@ class LibCrypto {
    *
    * @function createCertificateSigningRequest
    * @param {Object} settings - The configuration object to tell OpenSSL how to format the key
-   * @param {buffer|arrayBuffer|string|string[]|Object} [settings.key=null] - Key, default is current instance key. If not null, replaces key.
+   * @param {Buffer|ArrayBuffer|string|string[]|Object} [settings.key=null] - Key, default is current instance key. If not null, replaces key.
    * @param {number} [settings.curve=NID_secp256k1] - Numerical ID (NID) for the Elliptic Curve (EC) to use
    * @param {number} [settings.compressed=POINT_CONVERSION_UNCOMPRESSED] - Which X9.62 (ECDSA) form, for encoding an EC point
    * @param {string} [settings.password=null] - Password to use
@@ -490,7 +490,7 @@ class LibCrypto {
    *
    * @function validPrivateKey
    * @static
-   * @param {buffer|arrayBuffer|string|string[]|Object} privateKey - Private Key to compare
+   * @param {Buffer|ArrayBuffer|string|string[]|Object} privateKey - Private Key to compare
    * @param {string} [min=0] - Minimum value as a hex string
    * @param {string} [max=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364140] - Maximum value as a hex string
    * @return {Boolean}
