@@ -1,7 +1,18 @@
-/* COPYRIGHT DIGITALARSENAL.IO INC. ALL RIGHTS RESERVED.
- * 
- * LICENSE: APACHE-2.0
- */
+/*
+Copyright Netfoundry, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -313,40 +324,76 @@ int generateECKey()
   /* -------------------------------------------------------- *
    * Now we show how to extract EC-specifics from the key     *
    * ---------------------------------------------------------*/
-//   ecKey = EVP_PKEY_get1_EC_KEY(pkey);
+//   ecKey = EVP_PKEY_get1_EC_KEY(privateKey);
 //   const EC_GROUP *ecgrp = EC_KEY_get0_group(ecKey);
 
   /* ---------------------------------------------------------- *
    * Here we print the key length, and extract the curve type.  *
    * ---------------------------------------------------------- */
-//   printf("ECC Key size: %d bit\n", EVP_PKEY_bits(pkey));
+//   printf("ECC Key size: %d bit\n", EVP_PKEY_bits(privateKey));
 //   printf("ECC Key type: %s\n", OBJ_nid2sn(EC_GROUP_get_curve_name(ecgrp)));
 
-  /* ---------------------------------------------------------- *
-   * Here we print the private/public key data in PEM format.   *
-   * ---------------------------------------------------------- */
-  if(!PEM_write_bio_PrivateKey(outbio, pkey, NULL, NULL, 0, 0, NULL))
-    printf("Error writing private key data in PEM format");
 
-//   if(!PEM_write_bio_PUBKEY(outbio, pkey))
-    // BIO_printf(outbio, "Error writing public key data in PEM format");
+  return (int)pkey;
+}
 
-    BIO_flush(outbio);
+int getPrivateKeyPEM(EVP_PKEY *pkey) {
 
-    char* private_key_text;
-    long pemLen = BIO_get_mem_data(outbio, &private_key_text);
+  printf("getPrivateKeyPEM, pkey is: %p \n", pkey);
 
-    char* pem = calloc(1, pemLen + 2);
-    memcpy(pem, private_key_text, pemLen);
+  BIO* outbio = BIO_new( BIO_s_mem() );
 
+  if(!PEM_write_bio_PrivateKey(outbio, pkey, NULL, NULL, 0, 0, NULL)) {
+    printf("Error writing private key data in PEM format\n");
+    BIO_free_all(outbio);
+    return (int)0;
+  }
 
-  /* ---------------------------------------------------------- *
-   * Free up all structures                                     *
-   * ---------------------------------------------------------- */
-  EVP_PKEY_free(pkey);
+  BIO_flush(outbio);
+
+  char* private_key_text;
+  long privatePemLen = BIO_get_mem_data(outbio, &private_key_text);
+
+  char* privatePem = calloc(1, privatePemLen + 2);
+  memcpy(privatePem, private_key_text, privatePemLen);
+
+  printf("privatePem is: \n%s\n", privatePem);
+
   BIO_free_all(outbio);
 
-  return (int)pem;
+  return (int)privatePem;
+}
+
+int getPublicKeyPEM(EVP_PKEY *pkey) {
+
+  printf("getPublicKeyPEM, pkey is: %p \n", pkey);
+    
+  BIO* outbio = BIO_new( BIO_s_mem() );
+
+  if(!PEM_write_bio_PUBKEY(outbio, pkey)) {
+    printf("Error writing private key data in PEM format\n");
+    BIO_free_all(outbio);
+    return (int)0;
+  }
+
+  BIO_flush(outbio);
+
+  char* public_key_text;
+  long publicPemLen = BIO_get_mem_data(outbio, &public_key_text);
+
+  char* publicPem = calloc(1, publicPemLen + 2);
+  memcpy(publicPem, public_key_text, publicPemLen);
+
+  printf("publicPem is: \n%s\n", publicPem);
+
+  BIO_free_all(outbio);
+
+  return (int)publicPem;
+}
+
+void freeECKey(EVP_PKEY *pkey) {
+  printf("freeECKey, pkey is: %p \n", pkey);
+  EVP_PKEY_free(pkey);
 }
 
 

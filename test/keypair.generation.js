@@ -12,15 +12,20 @@ describe("public key and address from private key", function () {
   it("generates an EC keypair", async function () {
     let { libCrypto } = this;
     
-    let privateKeyPEM = libCrypto.generateECKey({});
+    let pkey = libCrypto.generateECKey({});
 
+    let privateKeyPEM = libCrypto.getPrivateKeyPEM(pkey)
     console.log(privateKeyPEM);
-
     expect(privateKeyPEM).to.not.equal(undefined);
     expect(privateKeyPEM.startsWith('-----BEGIN PRIVATE KEY-----\n')).to.be.true;
     expect(privateKeyPEM.endsWith('-----END PRIVATE KEY-----\n')).to.be.true;
 
+    let publicKeyPEM = libCrypto.getPublicKeyPEM(pkey);
+    console.log(publicKeyPEM);
+    expect(publicKeyPEM).to.not.equal(undefined);
+    expect(publicKeyPEM.startsWith('-----BEGIN PUBLIC KEY-----\n')).to.be.true;
+    expect(publicKeyPEM.endsWith('-----END PUBLIC KEY-----\n')).to.be.true;
+  
   });
 
 });
-

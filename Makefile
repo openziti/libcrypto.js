@@ -38,6 +38,9 @@ EXPORTED_FUNCTIONS = "[\
   '_destroyBuffer',\
   '_generateKey',\
   '_generateECKey',\
+  '_getPrivateKeyPEM',\
+  '_getPublicKeyPEM',\
+  '_freeECKey',\
   '_convertKey'\
 ]"
 
