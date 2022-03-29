@@ -1,3 +1,18 @@
+/*
+Copyright Netfoundry, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 import libcryptoWASM from "../lib/libcrypto.wasm.js";
 
@@ -302,11 +317,47 @@ class LibCrypto {
     }) {
       if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
       let memorylocation = this.instance.generateECKey();
+      return memorylocation;
+    }
+
+    /**
+     * Get private key from an EC key
+     *
+     * @function getPrivateKeyPEM
+     * @return {string} PEM representation of private key from specified EVP_PKEY
+     */
+    getPrivateKeyPEM(pkey) {
+      if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+      let memorylocation = this.instance.getPrivateKeyPEM(pkey);
       let pstring = this.readString(memorylocation);
       this.cleanupReferences();
       return pstring;
     }
-  
+
+    /**
+     * Get public key from an EC key
+     *
+     * @function getPublicKeyPEM
+     * @return {string} PEM representation of public key from specified EVP_PKEY
+     */
+     getPublicKeyPEM(pkey) {
+      if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+      let memorylocation = this.instance.getPublicKeyPEM(pkey);
+      let pstring = this.readString(memorylocation);
+      this.cleanupReferences();
+      return pstring;
+    }
+
+    /**
+     * Free an EC key
+     *
+     * @function freeECKey
+     */
+     freeECKey(pkey) {
+      if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+      this.instance.freeECKey(pkey);
+    }
+    
   /**
    * Create a certificate
    *
