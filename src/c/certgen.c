@@ -404,31 +404,27 @@ int createCertificateSigningRequest(
     int compressed,
     int password,
     int version,
-    int keyPointer,
+    EVP_PKEY* keyPointer,
     int namePointer,
     int idPointer,
     int nidArrayPointer)
 {
     free(heapStringPtr);
 
-    struct keystruct certStruct = hexToEVP((char *)keyPointer, curve, 0, compressed, NULL);
     X509_REQ *x509_req = X509_REQ_new();
     X509_REQ_set_version(x509_req, version);
-    X509_REQ_set_pubkey(x509_req, certStruct.evp_keyobject);
-    //STACK_OF(X509_EXTENSION) *exts_req = sk_X509_EXTENSION_new_null();
-    //add_ext_stacks(x509_req, exts_req, nidArrayPointer);
-    //X509_REQ_add_extensions(x509_req, exts_req);
+    X509_REQ_set_pubkey(x509_req, keyPointer);
     str2Name(namePointer, X509_REQ_get_subject_name(x509_req));
 
     int md_nid;
     const EVP_MD *md;
-    if (EVP_PKEY_get_default_digest_nid(certStruct.evp_keyobject, &md_nid) <= 0)
+    if (EVP_PKEY_get_default_digest_nid(keyPointer, &md_nid) <= 0)
         throwError();
 
     md = (md_nid == NID_undef)
              ? EVP_md_null()
              : EVP_get_digestbynid(md_nid);
-    if (!X509_REQ_sign(x509_req, certStruct.evp_keyobject, md))
+    if (!X509_REQ_sign(x509_req, keyPointer, md))
         throwError();
 
     generateX509CertificateRequest(x509_req);

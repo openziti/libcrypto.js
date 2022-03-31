@@ -28,4 +28,25 @@ describe("public key and address from private key", function () {
   
   });
 
+  it("generates a CSR", async function () {
+    let { libCrypto } = this;
+    
+    let pkey = libCrypto.generateECKey({});
+
+    let privateKeyPEM = libCrypto.getPrivateKeyPEM(pkey)
+    console.log(privateKeyPEM);
+    expect(privateKeyPEM).to.not.equal(undefined);
+    expect(privateKeyPEM.startsWith('-----BEGIN PRIVATE KEY-----\n')).to.be.true;
+    expect(privateKeyPEM.endsWith('-----END PRIVATE KEY-----\n')).to.be.true;
+
+    let csr = libCrypto.createCertificateSigningRequest({
+      key: pkey,
+    })
+    console.log(csr);
+    expect(csr).to.not.equal(undefined);
+    expect(csr.startsWith('-----BEGIN CERTIFICATE REQUEST-----\n')).to.be.true;
+    expect(csr.endsWith('-----END CERTIFICATE REQUEST-----\n')).to.be.true;  
+  });
+
+  
 });

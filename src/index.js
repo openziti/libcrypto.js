@@ -263,7 +263,7 @@ class LibCrypto {
    * @function convertKey
    * @param {Object} settings - The configuration object to tell OpenSSL how to format the key
    * @param {Buffer|ArrayBuffer|string|string[]|Object} [settings.key=null] - Key, default is current instance key. If not null, replaces key.
-   * @param {number} [settings.curve=NID_secp256k1] - Numerical ID (NID) for the Elliptic Curve (EC) to use
+   * @param {number} [settings.curve=NID_secp521r1] - Numerical ID (NID) for the Elliptic Curve (EC) to use
    * @param {number} [settings.outputtype=NID_X9_62_id_ecPublicKey] - NID for OpenSSL output type
    * @param {number} [settings.outformat=V_ASN1_BIT_STRING] - NID for OpenSSL output format
    * @param {number} [settings.compressed=POINT_CONVERSION_UNCOMPRESSED] - Which X9.62 (ECDSA) form, for encoding an EC point
@@ -272,7 +272,7 @@ class LibCrypto {
    */
   convertKey({
     key = null,
-    curve = NID_secp256k1,
+    curve = NID_secp521r1,
     outputtype = NID_X9_62_id_ecPublicKey,
     outformat = V_ASN1_BIT_STRING,
     compressed = POINT_CONVERSION_UNCOMPRESSED,
@@ -364,7 +364,7 @@ class LibCrypto {
    * @function createCertificate
    * @param {Object} settings - The configuration object to tell OpenSSL how to format the key
    * @param {Buffer|ArrayBuffer|string|string[]|Object} [settings.key=null] - Key, default is current instance key. If not null, replaces key.
-   * @param {number} [settings.curve=NID_secp256k1] - Numerical ID (NID) for the Elliptic Curve (EC) to use
+   * @param {number} [settings.curve=NID_secp521r1] - Numerical ID (NID) for the Elliptic Curve (EC) to use
    * @param {number} [settings.compressed=POINT_CONVERSION_UNCOMPRESSED] - Which X9.62 (ECDSA) form, for encoding an EC point
    * @param {string} [settings.password=null] - Password to use
    * @param {number} [settings.notBefore=0] - Certificate validity start in seconds from current system time
@@ -466,7 +466,7 @@ class LibCrypto {
    * @function createCertificateSigningRequest
    * @param {Object} settings - The configuration object to tell OpenSSL how to format the key
    * @param {Buffer|ArrayBuffer|string|string[]|Object} [settings.key=null] - Key, default is current instance key. If not null, replaces key.
-   * @param {number} [settings.curve=NID_secp256k1] - Numerical ID (NID) for the Elliptic Curve (EC) to use
+   * @param {number} [settings.curve=NID_secp521r1] - Numerical ID (NID) for the Elliptic Curve (EC) to use
    * @param {number} [settings.compressed=POINT_CONVERSION_UNCOMPRESSED] - Which X9.62 (ECDSA) form, for encoding an EC point
    * @param {string} [settings.password=null] - Password to use
    * @param {number} [settings.version=3] - Certificate version
@@ -479,13 +479,13 @@ class LibCrypto {
    * @param {string} [settings.subjectKeyIdentifier=hash] - Either hash per {@link https://tools.ietf.org/html/rfc3280#section-4.2.1.2} or a hex string (strongly discouraged).
    * @return {string} String representation of certificate
    */
-  createCertificateSigningRequest({
+    createCertificateSigningRequest({
     key = null,
-    curve = NID_secp256k1,
+    curve = NID_secp521r1,
     compressed = POINT_CONVERSION_UNCOMPRESSED,
     password = null,
-    version = 3,
-    name = "C=US, ST=VA, L=DZM, O=MyOrg, OU=dev, CN=DEFAULT",
+    version = 1,
+    name = "C=US, ST=NC, L=DZM, O=OpenZiti, OU=browZer, CN=OTF",
     id = "0",
     basicConstraints = null,
     keyUsage = this.keyUsage,
@@ -497,8 +497,6 @@ class LibCrypto {
       this.key = key;
     }
     let { keyHex, calcKeyUsage } = this;
-
-    // let _pathlen = basicConstraints?.CA ? `,pathlen:${Math.abs(parseInt(basicConstraints.pathlen) || 0)}` : "";
 
     let _san = [];
 
@@ -520,7 +518,9 @@ class LibCrypto {
       compressed,
       this.writeString(password),
       version - 1,
-      ...[keyHex, name, id].map((a) => this.writeString(a)),
+      key,
+      this.writeString(name),
+      this.writeString(id),
       this.writeUint32Array(
         [...extensions.entries()]
           .filter((a) => a[1].length)
