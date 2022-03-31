@@ -339,8 +339,6 @@ int generateECKey()
 
 int getPrivateKeyPEM(EVP_PKEY *pkey) {
 
-  printf("getPrivateKeyPEM, pkey is: %p \n", pkey);
-
   BIO* outbio = BIO_new( BIO_s_mem() );
 
   if(!PEM_write_bio_PrivateKey(outbio, pkey, NULL, NULL, 0, 0, NULL)) {
@@ -357,16 +355,12 @@ int getPrivateKeyPEM(EVP_PKEY *pkey) {
   char* privatePem = calloc(1, privatePemLen + 2);
   memcpy(privatePem, private_key_text, privatePemLen);
 
-  printf("privatePem is: \n%s\n", privatePem);
-
   BIO_free_all(outbio);
 
   return (int)privatePem;
 }
 
 int getPublicKeyPEM(EVP_PKEY *pkey) {
-
-  printf("getPublicKeyPEM, pkey is: %p \n", pkey);
     
   BIO* outbio = BIO_new( BIO_s_mem() );
 
@@ -384,15 +378,12 @@ int getPublicKeyPEM(EVP_PKEY *pkey) {
   char* publicPem = calloc(1, publicPemLen + 2);
   memcpy(publicPem, public_key_text, publicPemLen);
 
-  printf("publicPem is: \n%s\n", publicPem);
-
   BIO_free_all(outbio);
 
   return (int)publicPem;
 }
 
 void freeECKey(EVP_PKEY *pkey) {
-  printf("freeECKey, pkey is: %p \n", pkey);
   EVP_PKEY_free(pkey);
 }
 
