@@ -263,25 +263,8 @@ int generateKey(int type)
     if (EVP_PKEY_keygen(ctx, &pkey) <= 0)
         OpenSSLDie(__FILE__, __LINE__, "EVP_PKEY_keygen");
 
-    // write private key to memory
-    BIO* bio_private = BIO_new(BIO_s_mem());
-    int ret = PEM_write_bio_PrivateKey(bio_private, pkey, NULL, NULL, 0, NULL, NULL);
-    if (ret != 1)
-    {
-        printf("generateKey(): PEM_write_bio_PrivateKey failed with %d \n", ret);
-        return -1;
-    }
-    BIO_flush(bio_private);
 
-    char* private_key_text;
-    long pemLen = BIO_get_mem_data(bio_private, &private_key_text);
-
-    char* pem = calloc(1, pemLen + 2);
-    memcpy(pem, private_key_text, pemLen);
-
-    // printf("generateKey(): PEM_write_bio_PrivateKey succeeded, private_key_text is %p \n", private_key_text);
-
-    return (int)pem;
+    return (int)pkey;
 }
 
 int generateECKey()

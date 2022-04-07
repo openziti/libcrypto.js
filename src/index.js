@@ -300,10 +300,8 @@ class LibCrypto {
     /* no parms yet */
   }) {
     if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
-    let memorylocation = this.instance.generateKey();
-    let pstring = this.readString(memorylocation);
-    this.cleanupReferences();
-    return pstring;
+    let memorylocation = this.instance.generateKey(EVP_PKEY_RSA);
+    return memorylocation;
   }
 
   /**
