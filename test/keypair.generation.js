@@ -2,11 +2,30 @@
 import {LibCrypto} from "../dist/esm/index.js";
 
 describe("public key and address from private key", function () {
-  this.timeout(500);
 
   beforeEach(async function () {
+    this.timeout(1000);
     this.libCrypto = new LibCrypto();
     await this.libCrypto.initialize();
+  });
+
+  it("generates an RSA keypair", async function () {
+    let { libCrypto } = this;
+    
+    let pkey = libCrypto.generateKey({});
+
+    let privateKeyPEM = libCrypto.getPrivateKeyPEM(pkey)
+    console.log(privateKeyPEM);
+    expect(privateKeyPEM).to.not.equal(undefined);
+    expect(privateKeyPEM.startsWith('-----BEGIN PRIVATE KEY-----\n')).to.be.true;
+    expect(privateKeyPEM.endsWith('-----END PRIVATE KEY-----\n')).to.be.true;
+
+    let publicKeyPEM = libCrypto.getPublicKeyPEM(pkey);
+    console.log(publicKeyPEM);
+    expect(publicKeyPEM).to.not.equal(undefined);
+    expect(publicKeyPEM.startsWith('-----BEGIN PUBLIC KEY-----\n')).to.be.true;
+    expect(publicKeyPEM.endsWith('-----END PUBLIC KEY-----\n')).to.be.true;
+  
   });
 
   it("generates an EC keypair", async function () {
