@@ -62,6 +62,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
 
+      - name: work around permission issue (again, for submodule)
+        run: git config --global --add safe.directory /github/workspace
+
       - name: Checkout submodules
         uses: srt32/git-actions@v0.0.3
         with:
