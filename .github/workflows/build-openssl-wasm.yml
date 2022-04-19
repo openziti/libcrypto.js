@@ -32,6 +32,9 @@ jobs:
     
     steps:
     
+      - name: work around permission issue
+        run: git config --global --add safe.directory /github/workspace
+
       - name: Checkout
         uses: actions/checkout@v2
 
