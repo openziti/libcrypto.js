@@ -307,97 +307,97 @@ X509 *genCert(
     return x509;
 }
 
-int createCertificate(
-    int curve,
-    int compressed,
-    int password,
-    int notBefore,
-    int notAfter,
-    int version,
-    int keyPointer, /*TODO Pass In Hex, PEM, p12*/
-    int namePointer,
-    int issuerPointer,
-    int idPointer,
-    int friendlyNamePointer,
-    int csrPointer,
-    int nidArrayPointer,
-    int outformat,
-    int caPEMPointer,
-    int caPointer)
-{
+// int createCertificate(
+//     int curve,
+//     int compressed,
+//     int password,
+//     int notBefore,
+//     int notAfter,
+//     int version,
+//     int keyPointer, /*TODO Pass In Hex, PEM, p12*/
+//     int namePointer,
+//     int issuerPointer,
+//     int idPointer,
+//     int friendlyNamePointer,
+//     int csrPointer,
+//     int nidArrayPointer,
+//     int outformat,
+//     int caPEMPointer,
+//     int caPointer)
+// {
 
-    free(heapStringPtr);
+//     free(heapStringPtr);
 
-    X509_REQ *x509_req = csrPointer ? readCertificateSigningRequest(csrPointer) : NULL;
-    X509 *x509_ca = caPointer ? readCertificate(caPointer) : NULL;
-    struct keystruct certStruct;
+//     X509_REQ *x509_req = csrPointer ? readCertificateSigningRequest(csrPointer) : NULL;
+//     X509 *x509_ca = caPointer ? readCertificate(caPointer) : NULL;
+//     struct keystruct certStruct;
 
-    if (keyPointer && curve)
-    //Passing in params to create key in single step
-    {
-        certStruct = hexToEVP((char *)keyPointer, curve, 0, compressed, (char *)password);
-    }
-    else if (caPEMPointer)
-    {
-        certStruct.evp_keyobject = readECPrivateKey(caPEMPointer);
-        certStruct.password = (char *)password;
-    }
-    else
-    {
-        throwError();
-    }
+//     if (keyPointer && curve)
+//     //Passing in params to create key in single step
+//     {
+//         certStruct = hexToEVP((char *)keyPointer, curve, 0, compressed, (char *)password);
+//     }
+//     else if (caPEMPointer)
+//     {
+//         certStruct.evp_keyobject = readECPrivateKey(caPEMPointer);
+//         certStruct.password = (char *)password;
+//     }
+//     else
+//     {
+//         throwError();
+//     }
 
-    X509 *x509 = genCert(notBefore,
-                         notAfter,
-                         version,
-                         idPointer,
-                         nidArrayPointer);
-    /*Set Public Key*/
-    if (x509_req)
-    {
-        X509_set_pubkey(x509, X509_REQ_get_pubkey(x509_req));
-    }
-    else
-    {
-        X509_set_pubkey(x509, certStruct.evp_keyobject);
-    }
-    /*Set Issuer and Name*/
-    if (x509_req)
-    {
-        X509_set_subject_name(x509, X509_REQ_get_subject_name(x509_req));
-        int idx = X509_get_ext_by_NID(x509, 82, -1); //get the index
-        X509_delete_ext(x509, idx);
-    }
-    else
-    {
-        str2Name(namePointer, X509_get_subject_name(x509));
-    }
+//     X509 *x509 = genCert(notBefore,
+//                          notAfter,
+//                          version,
+//                          idPointer,
+//                          nidArrayPointer);
+//     /*Set Public Key*/
+//     if (x509_req)
+//     {
+//         X509_set_pubkey(x509, X509_REQ_get_pubkey(x509_req));
+//     }
+//     else
+//     {
+//         X509_set_pubkey(x509, certStruct.evp_keyobject);
+//     }
+//     /*Set Issuer and Name*/
+//     if (x509_req)
+//     {
+//         X509_set_subject_name(x509, X509_REQ_get_subject_name(x509_req));
+//         int idx = X509_get_ext_by_NID(x509, 82, -1); //get the index
+//         X509_delete_ext(x509, idx);
+//     }
+//     else
+//     {
+//         str2Name(namePointer, X509_get_subject_name(x509));
+//     }
 
-    str2Name(issuerPointer, X509_get_issuer_name(x509));
+//     str2Name(issuerPointer, X509_get_issuer_name(x509));
 
-    //Always have to sign certificate to start, can resign
-    int md_nid;
-    const EVP_MD *md;
+//     //Always have to sign certificate to start, can resign
+//     int md_nid;
+//     const EVP_MD *md;
 
-    if (EVP_PKEY_get_default_digest_nid(certStruct.evp_keyobject, &md_nid) <= 0)
-        throwError();
+//     if (EVP_PKEY_get_default_digest_nid(certStruct.evp_keyobject, &md_nid) <= 0)
+//         throwError();
 
-    md = (md_nid == NID_undef)
-             ? EVP_md_null()
-             : EVP_get_digestbynid(md_nid);
-    if (X509_sign(x509, certStruct.evp_keyobject, md) <= 0)
-        throwError();
+//     md = (md_nid == NID_undef)
+//              ? EVP_md_null()
+//              : EVP_get_digestbynid(md_nid);
+//     if (X509_sign(x509, certStruct.evp_keyobject, md) <= 0)
+//         throwError();
 
-    if (outformat == NID_x509Certificate)
-    {
-        generateX509Certificate(x509);
-    }
-    else if (outformat == NID_certBag)
-    {
-        generatePKCS12Bundle(x509, certStruct, (char *)friendlyNamePointer, x509_ca);
-    }
-    return (int)heapStringPtr;
-}
+//     if (outformat == NID_x509Certificate)
+//     {
+//         generateX509Certificate(x509);
+//     }
+//     else if (outformat == NID_certBag)
+//     {
+//         generatePKCS12Bundle(x509, certStruct, (char *)friendlyNamePointer, x509_ca);
+//     }
+//     return (int)heapStringPtr;
+// }
 
 int createCertificateSigningRequest(
     int curve,

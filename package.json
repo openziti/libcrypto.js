@@ -57,7 +57,7 @@
     "test": "karma start karma.conf.cjs",
     "test:dev": "env DEV=true mocha -s 300 --parallel --require test/utilities/hooks.js ./test",
     "prerollup": "rm -f lib/index.js && cat lib/define.mjs src/index.js >> lib/index.js && cp lib/index.js lib/index.ts",
-    "rollup": "rollup -c ./scripts/rollup.config.js",
+    "rollup": "rollup -c ./scripts/rollup.config.js && cp lib/libcrypto.wasm.wasm dist/esm/libcrypto.wasm.wasm",
     "clean": "rimraf lib/* && rimraf dist/*",
     "make-clean": "./scripts/make clean",
     "make": "./scripts/make libcrypto",

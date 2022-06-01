@@ -80,5 +80,136 @@ mergeInto(LibraryManager.library, {
     return 0;
   },
 
+  __syscall_setsockopt: function(arg1, arg2, arg3, arg4, arg5) {
+    console.log("__syscall_setsockopt(): args are: ", arg1, arg2, arg3, arg4, arg5);
+    return 0;
+  },
+
+  /**
+   * 
+   */
+  read: function(s, outbuf, len) {
+    console.log("read(): args are: ", s, outbuf, len);
+    debugger
+  },
+  _read: function(s, outbuf, len) {
+    console.log("_read(): args are: ", s, outbuf, len);
+    debugger
+  },
+
+  /**
+   * 
+   * @param {*} fd 
+   * @param {*} iov 
+   * @param {*} iovcnt 
+   * @param {*} pnum 
+   * @returns 
+   */
+  fd_read: async function (fd, iov, iovcnt, pnum) {
+
+    console.log('fd_read: entered');
+
+    if (fd < 10) {  // If not a ziti-browzer-core ZitiChannel fd
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      var num = SYSCALLS.doReadv(stream, iov, iovcnt);
+      HEAP32[pnum >> 2] = num;
+      return 0;
+    }
+
+    else {  // OK, we've got a ziti-browzer-core ZitiChannel fd, so find the associated ZitiChannel
+
+      const channel_iterator = _zitiContext._channels.values();
+      let fd_ch = null;
+      let ch = channel_iterator.next().value;
+      while (fd_ch === null && (typeof ch !== 'undefined')) {
+        if (ch.id === fd) {
+          fd_ch = ch;
+        } else {
+          ch = channel_iterator.next().value;
+        }
+      }
+      if (fd_ch === null) throw new Error('cannot find ZitiChannel')
+
+      //
+      console.log('fd_read: awaiting tlsConn.fd_read');
+      let data = await fd_ch.tlsConn.fd_read();
+      console.log('fd_read: tlsConn.fd_read returned [%o]', data);
+
+      HEAP32[pnum >> 2] = 0;
+      return 0;
+
+    }
+  },
+
+
+  /**
+   * _fd_write
+   * 
+   *  Let's intercept this so that ...
+   * 
+   * @param {*} fd 
+   * @param {*} iov 
+   * @param {*} iovcnt 
+   * @param {*} pnum 
+   * @returns 
+   */
+  fd_write: function(fd, iov, iovcnt, pnum) {
+
+    if (fd < 10) {  // If not a ziti-browzer-core ZitiChannel fd
+      var num = 0;
+      for (var i = 0; i < iovcnt; i++) {
+        var ptr = HEAP32[iov >> 2];
+        var len = HEAP32[iov + 4 >> 2];
+        iov += 8;
+        for (var j = 0; j < len; j++) {
+          SYSCALLS.printChar(fd, HEAPU8[ptr + j]);
+        }
+        num += len;
+      }
+      HEAP32[pnum >> 2] = num;
+      return 0;  
+    }
+
+    else {  // OK, we've got a ziti-browzer-core ZitiChannel fd, so find the associated ZitiChannel
+
+      const channel_iterator = _zitiContext._channels.values();
+      let fd_ch = null;
+      let ch = channel_iterator.next().value;
+      while (fd_ch === null && (typeof ch !== 'undefined')) {
+        if (ch.id === fd) {
+          fd_ch = ch;
+        } else {
+          ch = channel_iterator.next().value;
+        }
+      }
+      if (fd_ch === null) throw new Error('cannot find ZitiChannel')
+
+      // convert WASM memory to JS Buffer so we can send it
+
+      var num = 0;
+      for (var i = 0; i < iovcnt; i++) {
+        var ptr = HEAP32[iov >> 2];
+        var len = HEAP32[iov + 4 >> 2];
+        iov += 8;
+
+        var array = new Uint8Array(len);
+
+        for (var j = 0; j < len; j++) {
+          array[j] = HEAPU8[ptr + j];
+        }
+
+        fd_ch.tlsConn.fd_write(array);
+
+        num += len;
+      }
+
+      HEAP32[pnum >> 2] = num;
+      
+      return 0;
+    }
+
+  }
+
+
 });
 

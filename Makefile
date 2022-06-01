@@ -31,7 +31,6 @@ EXPORTED_FUNCTIONS = "[\
   '_EVP_PKEY_free',\
   '_RSA_new',\
   '_EVP_PKEY_keygen',\
-  '_createCertificate',\
   '_createCertificateSigningRequest',\
   '_cleanup',\
   '_createBuffer',\
@@ -41,7 +40,24 @@ EXPORTED_FUNCTIONS = "[\
   '_getPrivateKeyPEM',\
   '_getPublicKeyPEM',\
   '_freeECKey',\
-  '_convertKey'\
+  '_ssl_CTX_new',\
+  '_ssl_CTX_add_private_key',\
+  '_ssl_CTX_add_certificate',\
+  '_ssl_CTX_add_extra_chain_cert',\
+  '_ssl_CTX_verify_certificate_and_key',\
+  '_ssl_CTX_add_extra_chain_cert',\
+  '_ssl_CTX_add1_to_CA_list',\
+  '_bio_new_ssl_connect',\
+  '_bio_get_ssl',\
+  '_bio_set_conn_hostname',\
+  '_bio_do_connect',\
+  '_ssl_do_handshake',\
+  '_ssl_get_verify_result',\
+  '_ssl_new',\
+  '_ssl_set_fd',\
+  '_ssl_connect',\
+  '_tls_write',\
+  '_tls_read'\
 ]"
 
 EXPORTED_RUNTIME_FUNCTIONS="[\
@@ -64,20 +80,15 @@ export EMCONFIGURE_JS
 #####################
 libcrypto: libcrypto.js
 
-libcrypto-wrappers: $(MODULES_DIR)/libcrypto-wrappers.js
-	@echo +++ libcrypto-wrappers step
-	mkdir -p $(MODULES_DIR)
-	$(NODE) wrapper/build-libcrypto-wrappers.js ./libcrypto libcrypto-API.md $(MODULES_DIR)/libcrypto-wrappers.js
-
 libcrypto.js: libcrypto.wasm
 	@echo +++ libcrypto.js step
 
 # 	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) src/c/main.c src/c/certgen.c src/c/utilities.c \
 
-libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a
+libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 	@echo +++ libcrypto.wasm step
 	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) src/c/*.c \
-		$(OPENSSL_DIR)/libcrypto.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
+		$(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
 		-o lib/libcrypto.wasm.js \
 		--js-library src/js-library.js \
 		--no-entry \
@@ -86,12 +97,12 @@ libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a
 		-s EXPORTED_RUNTIME_METHODS=$(EXPORTED_RUNTIME_FUNCTIONS) \
 		-s DETERMINISTIC \
 		-s FILESYSTEM=0 \
-		-s ERROR_ON_UNDEFINED_SYMBOLS=1 \
+		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 		-s LLD_REPORT_UNDEFINED \
 		-s STRICT=1 \
     	-s ALLOW_MEMORY_GROWTH=1 \
 		-s USE_ES6_IMPORT_META=0 \
-		-s SINGLE_FILE \
+		-s SINGLE_FILE=0 \
 		-s EXPORT_ES6=1 \
 		-s INVOKE_RUN=0 \
 		-s EXPORT_NAME=createMyModule \
@@ -99,6 +110,8 @@ libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a
 		-s MODULARIZE=1 \
 		-s STANDALONE_WASM \
 		-s WASM_BIGINT \
+    -s ASYNCIFY \
+    -s ASYNCIFY_IMPORTS=[ziti_readsocket] \
 		-s WASM=1
 
 #		-s VERBOSE \
@@ -111,6 +124,10 @@ libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a
 $(OPENSSL_DIR)/libcrypto.a: $(OPENSSL_DIR)/configdata.pm
 	@echo +++ libcrypto.a step
 	cd $(OPENSSL_DIR) && EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMMAKE) make libcrypto.a CFLAGS="$(OPENSSL_EMCC_CFLAGS)"
+
+$(OPENSSL_DIR)/libssl.a: $(OPENSSL_DIR)/configdata.pm
+	@echo +++ libssl.a step
+	cd $(OPENSSL_DIR) && EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMMAKE) make libssl.a CFLAGS="$(OPENSSL_EMCC_CFLAGS)"
 
 $(OPENSSL_DIR)/configdata.pm: gitmodules
 	@echo +++ configdata.pm step

@@ -202,9 +202,9 @@ class LibCrypto {
     if (!str) return 0;
     let { createBuffer, memory } = this.instance;
 
-    if (typeof str !== "string") {
-      str = str.toString(str instanceof Buffer ? "hex" : 16);
-    }
+    // if (typeof str !== "string") {
+    //   str = str.toString(str instanceof Buffer ? "hex" : 16);
+    // }
 
     const strBuf = new TextEncoder().encode(str + "\0");
     let offset = createBuffer(strBuf.length);
@@ -310,51 +310,51 @@ class LibCrypto {
    * @function generateECKey
    * @return {string} String representation of formatted key
    */
-     generateECKey({
-      /* no parms yet */
-    }) {
-      if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
-      let memorylocation = this.instance.generateECKey();
-      return memorylocation;
-    }
+  generateECKey({
+    /* no parms yet */
+  }) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let memorylocation = this.instance.generateECKey();
+    return memorylocation;
+  }
 
-    /**
-     * Get private key from an EC key
-     *
-     * @function getPrivateKeyPEM
-     * @return {string} PEM representation of private key from specified EVP_PKEY
-     */
-    getPrivateKeyPEM(pkey) {
-      if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
-      let memorylocation = this.instance.getPrivateKeyPEM(pkey);
-      let pstring = this.readString(memorylocation);
-      this.cleanupReferences();
-      return pstring;
-    }
+  /**
+   * Get private key from an EC key
+   *
+   * @function getPrivateKeyPEM
+   * @return {string} PEM representation of private key from specified EVP_PKEY
+   */
+  getPrivateKeyPEM(pkey) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let memorylocation = this.instance.getPrivateKeyPEM(pkey);
+    let pstring = this.readString(memorylocation);
+    this.cleanupReferences();
+    return pstring;
+  }
 
-    /**
-     * Get public key from an EC key
-     *
-     * @function getPublicKeyPEM
-     * @return {string} PEM representation of public key from specified EVP_PKEY
-     */
-     getPublicKeyPEM(pkey) {
-      if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
-      let memorylocation = this.instance.getPublicKeyPEM(pkey);
-      let pstring = this.readString(memorylocation);
-      this.cleanupReferences();
-      return pstring;
-    }
+  /**
+   * Get public key from an EC key
+   *
+   * @function getPublicKeyPEM
+   * @return {string} PEM representation of public key from specified EVP_PKEY
+   */
+    getPublicKeyPEM(pkey) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let memorylocation = this.instance.getPublicKeyPEM(pkey);
+    let pstring = this.readString(memorylocation);
+    this.cleanupReferences();
+    return pstring;
+  }
 
-    /**
-     * Free an EC key
-     *
-     * @function freeECKey
-     */
-     freeECKey(pkey) {
-      if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
-      this.instance.freeECKey(pkey);
-    }
+  /**
+   * Free an EC key
+   *
+   * @function freeECKey
+   */
+    freeECKey(pkey) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    this.instance.freeECKey(pkey);
+  }
     
   /**
    * Create a certificate
@@ -552,6 +552,202 @@ class LibCrypto {
     min = Buffer.from(min, "hex");
     return Buffer.compare(max, privateKey) === 1 && Buffer.compare(privateKey, min) === 1;
   }
+
+  /**
+   * Create a new SSL_CTX object, which holds various configuration and data relevant to SSL/TLS or DTLS session establishment
+   *
+   * @function ssl_CTX_new
+   */
+   ssl_CTX_new() {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let memorylocation = this.instance.ssl_CTX_new();
+    return memorylocation;
+  }
+
+  /**
+   * 
+   * @param {*} ctx 
+   * @param {*} pkey 
+   * @returns 
+   */
+  ssl_CTX_add_private_key(ctx, pkey) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let memorylocation = this.instance.ssl_CTX_add_private_key(ctx, pkey);
+    return memorylocation;
+  }
+
+  /**
+   * 
+   * @param {*} ctx 
+   * @param {*} certPem 
+   * @returns 
+   */
+  ssl_CTX_add_certificate(ctx, certPem) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+
+    let certPemPointer = this.writeString(certPem);
+    if (certPemPointer == 0) return null;
+
+    let memorylocation = this.instance.ssl_CTX_add_certificate(ctx, certPemPointer);
+    return memorylocation;
+  }
+
+  /**
+   * 
+   * @param {*} ctx 
+   * @param {*} casPem 
+   * @returns 
+   */
+  ssl_CTX_add1_to_CA_list(ctx, casPem) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+
+    let casPemPointer = this.writeString(casPem);
+    if (casPemPointer == 0) return null;
+
+    let memorylocation = this.instance.ssl_CTX_add1_to_CA_list(ctx, casPemPointer);
+    return memorylocation;
+  }
+
+
+  /**
+   * 
+   * @param {*} ctx 
+   * @param {*} casPem 
+   * @returns 
+   */
+   ssl_CTX_add_extra_chain_cert(ctx, casPem) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+
+    let casPemPointer = this.writeString(casPem);
+    if (casPemPointer == 0) return null;
+
+    let memorylocation = this.instance.ssl_CTX_add_extra_chain_cert(ctx, casPemPointer);
+    return memorylocation;
+  }
+
+  
+
+  ssl_CTX_verify_certificate_and_key(ctx) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let memorylocation = this.instance.ssl_CTX_verify_certificate_and_key(ctx);
+    return memorylocation;
+  }
+
+  bio_new_ssl_connect(ctx) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let memorylocation = this.instance.bio_new_ssl_connect(ctx);
+    return memorylocation;
+  }
+
+  bio_do_connect(bio) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let result = this.instance.bio_do_connect(bio);
+    return result;
+  }
+
+
+  ssl_new(ctx) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let memorylocation = this.instance.ssl_new(ctx);
+    return memorylocation;
+  }
+
+  bio_new_ssl_connect(ctx) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let memorylocation = this.instance.bio_new_ssl_connect(ctx);
+    return memorylocation;
+  }
+
+  bio_get_ssl(sbio) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let memorylocation = this.instance.bio_get_ssl(sbio);
+    return memorylocation;
+  }
+
+  bio_set_conn_hostname(sbio, conn_str) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+
+    let hostnamePointer = this.writeString(conn_str);
+
+    let result = this.instance.bio_set_conn_hostname(sbio, hostnamePointer);
+    return result;
+  }
+
+  ssl_do_handshake(ssl, self, cb) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let result = this.instance.ssl_do_handshake(ssl, self, cb);
+    return result;
+  }
+
+  ssl_get_verify_result(ssl) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let result = this.instance.ssl_get_verify_result(ssl);
+    return result;
+  }
+
+  tls_write(ssl, buffer) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+
+    let { createBuffer, destroyBuffer, memory } = this.instance;
+
+    let offset = createBuffer(buffer.byteLength);
+
+    // Transfer the bytes into the WebAssembly heap
+    let ndx = 0;
+    let dataview = new DataView(buffer, ndx);
+    let outBuf = new Uint8Array(memory.buffer, offset, buffer.byteLength);
+    while (ndx < buffer.byteLength) {
+        let byte = dataview.getUint8(ndx);
+        outBuf[ndx] = byte;
+        ndx++;
+    }
+    
+    let result = this.instance.tls_write(ssl, offset, buffer.byteLength);
+
+    // destroyBuffer( offset );
+
+    return result;
+  }
+
+  tls_read(ssl) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+
+    let { createBuffer, destroyBuffer, memory } = this.instance;
+
+    let len = 16 * 1024;  // largest TLS record sizew is 16k
+
+    let offset = createBuffer( len + 4);  // add 4 padding bytes at the end for now
+
+    let read_len = this.instance.tls_read(ssl, offset, len, memory);
+
+    let result_buffer = null;
+
+    if (read_len > 0) {
+      let wasm_buffer = new Uint8Array(memory.buffer, offset, read_len);
+      result_buffer = new ArrayBuffer(wasm_buffer.byteLength);
+      new Uint8Array(result_buffer).set(new Uint8Array(wasm_buffer));
+    }
+    
+    // destroyBuffer( offset );
+
+    return result_buffer;
+  }
+
+
+  ssl_set_fd(ssl, socket) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let result = this.instance.ssl_set_fd(ssl, socket);
+    return result;
+  }
+
+  ssl_connect(ssl) {
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+    let result = this.instance.ssl_connect(ssl);
+    return result;
+  }
+
+
+
 }
 
 export {
