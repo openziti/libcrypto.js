@@ -1,3 +1,12 @@
+# [0.7.0](https://github.com/openziti/libcrypto.js/compare/v0.6.22...v0.7.0) (2022-06-01)
+
+
+### Features
+
+* TLS via WASM ([#68](https://github.com/openziti/libcrypto.js/issues/68)) ([55c2761](https://github.com/openziti/libcrypto.js/commit/55c276115b3c8ad21d589ba850ceef925ae03871))
+
+
+
 ## [0.6.22](https://github.com/openziti/libcrypto.js/compare/v0.6.21...v0.6.22) (2022-04-12)
 
 
