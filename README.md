@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-<a href="https://ziti.dev"><img src="ziti.png" width="100"></a>
+<a href="https://openziti.io"><img src="ziti.png" width="100"></a>
 </p>
 
 <p align="center">
@@ -9,17 +9,17 @@
     <br>
     <b>
     This component contains the OpenSSL libcrypto library compiled to WebAssembly and pure JavaScript, with convenient wrappers.
-    This is used as part of the <a href="https://ziti.devdev/about">OpenZiti</a> Zero Trust browZer stack</b>
+    This is used as part of the <a href="https://openziti.io/about">OpenZiti</a> Zero Trust browZer stack</b>
 </p>
 
 <p align="center">
     <br>
     <b>Are you interested in knowing how to easily embed programmable, high performance, zero trust networking into your app, on any internet connection, without VPNs?
     <br>
-    Learn more about our <a href="https://ziti.devdev/about">OpenZiti</a> project by clicking the image below:</b>
+    Learn more about our <a href="https://openziti.io/about">OpenZiti</a> project by clicking the image below:</b>
     <br>
     <br>
-    <a href="https://ziti.dev"><img src="ziti-dev-logo.png" width="200"></a>
+    <a href="https://openziti.io"><img src="ziti-dev-logo.png" width="200"></a>
 </p>
 
 ---
