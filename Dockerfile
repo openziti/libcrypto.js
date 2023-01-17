@@ -30,7 +30,7 @@ RUN ./emsdk install ${EMSCRIPTEN_V}
 RUN ./emsdk activate ${EMSCRIPTEN_V}
 
 #
-RUN cd emscripten/main
+RUN cd upstream/emscripten
 # Add a git remote link to our fork of emscripten.
 RUN git remote add browzer-updates https://github.com/openziti-test-kitchen/emscripten.git
 # Obtain the changes in our fork.
