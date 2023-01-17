@@ -29,6 +29,15 @@ RUN ./emsdk install ${EMSCRIPTEN_V}
 # Make the "latest" SDK "active" for the current user. (writes .emscripten file)
 RUN ./emsdk activate ${EMSCRIPTEN_V}
 
+#
+RUN cd emscripten/main
+# Add a git remote link to our fork of emscripten.
+RUN git remote add browzer-updates https://github.com/openziti-test-kitchen/emscripten.git
+# Obtain the changes in our fork.
+RUN git fetch browzer-updates
+# Switch the emscripten-main tool to use our branch within our fork.
+RUN git checkout -b browzer-updates --track browzer-updates/browzer-updates
+
 RUN git config --global user.name 'Nobody'
 RUN git config --global user.email 'nobody@nowhere.nope'
 
