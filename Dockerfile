@@ -35,24 +35,28 @@ RUN ./emsdk install ${EMSCRIPTEN_V}
 # Make the "latest" SDK "active" for the current user. (writes .emscripten file)
 RUN ./emsdk activate ${EMSCRIPTEN_V}
 
-    # ##########################################################################
-    # #   We will use our Emscripten github fork with the EMSDK.
-    # #   Our Emscripten fork contains support for nested Asyncify calls.
-    # ##########################################################################
+# ##########################################################################
+# #   We will use our Emscripten github fork with the EMSDK.
+# #   Our Emscripten fork contains support for nested Asyncify calls.
+# ##########################################################################
 
-    # # Clone+pull the latest emscripten-core/emscripten/main and set the main SDK as the currently active one
-    # RUN ./emsdk install sdk-upstream-main-64bit
-    # RUN ./emsdk activate sdk-upstream-main-64bit
+# # Clone+pull the latest emscripten-core/emscripten/main and set the main SDK as the currently active one
+# RUN ./emsdk install sdk-upstream-main-64bit
+# RUN ./emsdk activate sdk-upstream-main-64bit
 
-    # #
-    # # RUN cd upstream/emscripten
-    # RUN cd emscripten/main
-    # # Add a git remote link to our fork of emscripten.
-    # RUN git remote add browzer-updates https://github.com/openziti-test-kitchen/emscripten.git
-    # # Obtain the changes in our fork.
-    # RUN git fetch browzer-updates
-    # # Switch the emscripten-main tool to use our branch within our fork.
-    # RUN git checkout -b browzer-updates --track browzer-updates/browzer-updates
+# #
+WORKDIR /opt/emsdk/upstream
+RUN mv emscripten emscripten-orig
+RUN git clone https://github.com/openziti-test-kitchen/emscripten
+WORKDIR /opt/emsdk/upstream/emscripten
+RUN git checkout remotes/origin/browzer-updates
+# RUN cd emscripten/main
+# # Add a git remote link to our fork of emscripten.
+# RUN git remote add browzer-updates https://github.com/openziti-test-kitchen/emscripten.git
+# # Obtain the changes in our fork.
+# RUN git fetch browzer-updates
+# # Switch the emscripten-main tool to use our branch within our fork.
+# RUN git checkout -b browzer-updates --track browzer-updates/browzer-updates
 
 RUN git config --global user.name 'Nobody'
 RUN git config --global user.email 'nobody@nowhere.nope'
