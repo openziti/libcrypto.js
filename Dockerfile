@@ -5,6 +5,7 @@ RUN apt-get update && apt-get -y install \
     wget \
     autoconf \
     nodejs \
+    npm \
     default-jre \
     libtool \
     curl \
@@ -52,7 +53,7 @@ WORKDIR /opt/emsdk/upstream/emscripten
 RUN git checkout remotes/origin/browzer-updates
 
 # Ensure 'acorn' is installed
-RUN npm inmstall
+RUN npm install
 
 # RUN cd emscripten/main
 # # Add a git remote link to our fork of emscripten.
