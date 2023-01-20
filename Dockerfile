@@ -1,5 +1,7 @@
 FROM ubuntu:18.04
 
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+
 RUN apt-get update && apt-get -y install \ 
     build-essential \
     wget \
