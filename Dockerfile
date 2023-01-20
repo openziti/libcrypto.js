@@ -1,18 +1,19 @@
 FROM ubuntu:18.04
 
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
-
 RUN apt-get update && apt-get -y install \ 
     build-essential \
     wget \
     autoconf \
-    nodejs \
-    npm \
     default-jre \
     libtool \
     curl \
     git-core \
     zip
+
+# Install Node 14.x+
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get -y install \ 
+    nodejs
 
 RUN apt remove -y cmake
 RUN apt purge -y --auto-remove cmake
