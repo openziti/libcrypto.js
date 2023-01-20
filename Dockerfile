@@ -50,6 +50,10 @@ RUN mv emscripten emscripten-orig
 RUN git clone https://github.com/openziti-test-kitchen/emscripten
 WORKDIR /opt/emsdk/upstream/emscripten
 RUN git checkout remotes/origin/browzer-updates
+
+# Ensure 'acorn' is installed
+RUN npm inmstall
+
 # RUN cd emscripten/main
 # # Add a git remote link to our fork of emscripten.
 # RUN git remote add browzer-updates https://github.com/openziti-test-kitchen/emscripten.git
