@@ -53,7 +53,7 @@ WORKDIR /opt/emsdk/upstream
 RUN mv emscripten emscripten-orig
 RUN git clone https://github.com/openziti-test-kitchen/emscripten
 WORKDIR /opt/emsdk/upstream/emscripten
-RUN git checkout remotes/origin/browzer-updates
+RUN git checkout remotes/origin/3.0.0-browZer
 
 # Ensure 'acorn' is installed
 RUN npm install
