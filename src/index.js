@@ -136,6 +136,9 @@ class LibCrypto {
             }),
 
             table: new WebAssembly.Table({ initial: 0, element: 'anyfunc' }),
+
+            thisProgram: 'OpenZiti browZer',
+
           }
         )
       ).asm;

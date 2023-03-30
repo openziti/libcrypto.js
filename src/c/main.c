@@ -32,6 +32,12 @@ limitations under the License.
 
 char *heapStringPtr = 0;
 
+/**
+ * 
+ */
+int __stack_high = 0;
+int __stack_low = 0;
+
 int generate_PEM(struct keystruct convertStruct)
 {
 

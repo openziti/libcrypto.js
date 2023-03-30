@@ -30,6 +30,10 @@ limitations under the License.
 
 mergeInto(LibraryManager.library, {
 
+  emscripten_stack_init: function() {
+    console.log("emscripten_stack_init(): entered");
+  },
+
   /**
    * @function ziti_getentropy
    * 
@@ -85,6 +89,11 @@ mergeInto(LibraryManager.library, {
     return 0;
   },
 
+  _gai_strerror: function(arg1) {
+    console.log("_gai_strerror(): args are: ", arg1);
+    return '';
+  },
+  
   /**
    * 
    */
@@ -118,22 +127,15 @@ mergeInto(LibraryManager.library, {
 
     else {  // OK, we've got a ziti-browzer-core ZitiChannel fd, so find the associated ZitiChannel
 
-      const channel_iterator = _zitiContext._channels.values();
-      let fd_ch = null;
-      let ch = channel_iterator.next().value;
-      while (fd_ch === null && (typeof ch !== 'undefined')) {
-        if (ch.id === fd) {
-          fd_ch = ch;
-        } else {
-          ch = channel_iterator.next().value;
-        }
-      }
-      if (fd_ch === null) throw new Error('cannot find ZitiChannel')
+      const wasmFD = _zitiContext._wasmFDsById.get( fd );
+      if (wasmFD === null) throw new Error('cannot find wasmFD')
+
 
       //
-      console.log('fd_read: awaiting tlsConn.fd_read');
-      let data = await fd_ch.tlsConn.fd_read();
-      console.log('fd_read: tlsConn.fd_read returned [%o]', data);
+      // console.log('fd_read: awaiting wasmFD.socket.fd_read');
+      // let data = wasmFD.socket.fd_read();
+      wasmFD.socket.fd_read();
+      // console.log('fd_read: wasmFD.socket.fd_read returned [%o]', data);
 
       HEAP32[pnum >> 2] = 0;
       return 0;
@@ -172,17 +174,21 @@ mergeInto(LibraryManager.library, {
 
     else {  // OK, we've got a ziti-browzer-core ZitiChannel fd, so find the associated ZitiChannel
 
-      const channel_iterator = _zitiContext._channels.values();
-      let fd_ch = null;
-      let ch = channel_iterator.next().value;
-      while (fd_ch === null && (typeof ch !== 'undefined')) {
-        if (ch.id === fd) {
-          fd_ch = ch;
-        } else {
-          ch = channel_iterator.next().value;
-        }
-      }
-      if (fd_ch === null) throw new Error('cannot find ZitiChannel')
+      const wasmFD = _zitiContext._wasmFDsById.get( fd );
+      if (wasmFD === null) throw new Error('cannot find wasmFD')
+
+
+      // const channel_iterator = _zitiContext._channels.values();
+      // let fd_ch = null;
+      // let ch = channel_iterator.next().value;
+      // while (fd_ch === null && (typeof ch !== 'undefined')) {
+      //   if (ch.id === fd) {
+      //     fd_ch = ch;
+      //   } else {
+      //     ch = channel_iterator.next().value;
+      //   }
+      // }
+      // if (fd_ch === null) throw new Error('cannot find ZitiChannel')
 
       // convert WASM memory to JS Buffer so we can send it
 
@@ -198,7 +204,8 @@ mergeInto(LibraryManager.library, {
           array[j] = HEAPU8[ptr + j];
         }
 
-        fd_ch.tlsConn.fd_write(array);
+        // fd_ch.tlsConn.fd_write(array);
+        wasmFD.socket.fd_write(array);
 
         num += len;
       }
