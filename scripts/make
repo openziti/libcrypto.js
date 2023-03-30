@@ -4,4 +4,4 @@ PROJECT_ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 set -e
 
-docker run --platform linux/amd64 --rm --volume "${PROJECT_ROOT_DIR}":/opt/openssljs ghcr.io/openziti/libcryptojs-build:291 make ${@}
+docker run --platform linux/amd64 --rm --volume "${PROJECT_ROOT_DIR}":/opt/openssljs ghcr.io/openziti/libcryptojs-build:294 make ${@}
