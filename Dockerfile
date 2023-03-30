@@ -68,8 +68,7 @@ RUN npm install
 
 RUN git config --global user.name 'Nobody'
 RUN git config --global user.email 'nobody@nowhere.nope'
-RUN git config --global --add safe.directory /opt/openssljs/openssl
-RUN git config --global --add safe.directory /opt/openssljs
+RUN git config --global --add safe.directory '*'
 
 RUN mkdir /opt/openssljs
 
