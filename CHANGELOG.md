@@ -1,3 +1,14 @@
+# [0.13.0](https://github.com/openziti/libcrypto.js/compare/v0.6.22...v0.13.0) (2023-03-30)
+
+
+### Features
+
+* TLS via WASM ([#68](https://github.com/openziti/libcrypto.js/issues/68)) ([55c2761](https://github.com/openziti/libcrypto.js/commit/55c276115b3c8ad21d589ba850ceef925ae03871))
+* updep ([#74](https://github.com/openziti/libcrypto.js/issues/74)) ([e03ee7a](https://github.com/openziti/libcrypto.js/commit/e03ee7a054e3e16ccdebe59d72d41eda949108ec))
+* use Emscripten fork ([#152](https://github.com/openziti/libcrypto.js/issues/152)) ([f9431e0](https://github.com/openziti/libcrypto.js/commit/f9431e0f0baf75f137e469dbf7dda7e3995aa4f2))
+
+
+
 ## [0.6.22](https://github.com/openziti/libcrypto.js/compare/v0.6.21...v0.6.22) (2022-04-12)
 
 
