@@ -5,7 +5,7 @@ EMMAKE ?= emmake
 EMCC ?= emcc
 EMCONFIGURE ?= emconfigure
 EMCONFIGURE_JS ?= 0
-OPENSSL_EMCC_CFLAGS := -O2 -fPIC -DNDEBUG -D__STDC_NO_ATOMICS__=1 -DCRYPTO_TDEBUG=1
+OPENSSL_EMCC_CFLAGS := -g -O2 -fPIC -DNDEBUG -D__STDC_NO_ATOMICS__=1 -DCRYPTO_TDEBUG=1
 
 NODE := $(shell if which nodejs >/dev/null 2>&1 ; then echo nodejs; else echo node ; fi)
 
@@ -100,7 +100,7 @@ libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 		-s LLD_REPORT_UNDEFINED \
 		-s STRICT=1 \
-    	-s ALLOW_MEMORY_GROWTH=1 \
+    -s ALLOW_MEMORY_GROWTH=1 \
 		-s USE_ES6_IMPORT_META=0 \
 		-s SINGLE_FILE=0 \
 		-s EXPORT_ES6=1 \
@@ -112,12 +112,14 @@ libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		-s WASM_BIGINT \
     -s ASYNCIFY \
     -s ASYNCIFY_IMPORTS=[ziti_readsocket] \
+    -s PROXY_POSIX_SOCKETS=0 \
 		-s WASM=1
 
+# 		-s ASSERTIONS=1 \
 #		-s VERBOSE \
+#    -s MEMORY64=2 \
 #		-s SAFE_HEAP=1 \
 #		-s SAFE_HEAP_LOG=1 \
-#		-s ASSERTIONS=1 \
 
 
 

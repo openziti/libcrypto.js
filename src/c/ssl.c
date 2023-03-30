@@ -329,24 +329,13 @@ int bio_do_connect(BIO *sbio)
  */
 EM_JS(void, ziti_connected_cb, (int fd, int rc), {
 
-    // Get the Channel that maps to this fd
-    let fd_ch = _zitiContext._channelsById.get( fd );
+    const wasmFD = _zitiContext._wasmFDsById.get( fd );
+    if (wasmFD === null) {
+        throw new Error('cannot find wasmFD');
+    }
 
-    // // Translate the fd to a ziti-browzer-runtime ZitiWASMTLSConnection
-    // const channel_iterator = _zitiContext._channels.values();
-    // let fd_ch = null;
-    // let ch = channel_iterator.next().value;
-    // while (fd_ch === null && (typeof ch !== 'undefined')) {
-    //     if (ch.id === fd) {
-    //         fd_ch = ch;
-    //     } else {
-    //         ch = channel_iterator.next().value;
-    //     }
-    // }
-    if (!fd_ch) { throw new Error('cannot find ZitiChannel'); }
-
-    if (fd_ch.tlsConn._connected_cb) {
-        fd_ch.tlsConn._connected_cb(fd_ch.tlsConn, rc);
+    if (wasmFD.socket._connected_cb) {
+        wasmFD.socket._connected_cb(wasmFD.socket, rc);
     }
 });
 
@@ -413,28 +402,14 @@ static void hexdump(const void *ptr, size_t len)
  */
 EM_JS(void, ziti_read_cb, (int fd, void *buffer, int read_len, void *memory), {
 
-    // Get the Channel that maps to this fd
-    let fd_ch = _zitiContext._channelsById.get( fd );
+    const wasmFD = _zitiContext._wasmFDsById.get( fd );
 
-    // // Translate the fd to a ziti-browzer-runtime ZitiWASMTLSConnection
-    // const channel_iterator = _zitiContext._channels.values();
-    // let fd_ch = null;
-    // let ch = channel_iterator.next().value;
-    // while (fd_ch === null && (typeof ch !== 'undefined')) {
-    //     if (ch.id === fd) {
-    //         fd_ch = ch;
-    //     } else {
-    //         ch = channel_iterator.next().value;
-    //     }
-    // }
-    if (!fd_ch) { throw new Error('cannot find ZitiChannel'); }
-
-    if (!fd_ch.tlsConn.connected) { 
-        return; 
+    if (wasmFD === null) {
+        throw new Error('cannot find wasmFD');
     }
 
-    // If we found the callback...
-    if (fd_ch.tlsConn._read_cb) {
+    // If we are connected and found the callback...
+    if (wasmFD.socket._connected && wasmFD.socket._read_cb) {
 
         // ...and some data was actually read from the stream
         if (read_len > 0) {
@@ -444,38 +419,63 @@ EM_JS(void, ziti_read_cb, (int fd, void *buffer, int read_len, void *memory), {
             var result_buffer = new ArrayBuffer(read_len);
             new Uint8Array(result_buffer).set(someView);
 
-
-            // // Copy the data from WASM heap into JS heap
-
-            // let result_buffer = new ArrayBuffer(read_len);
-            // let result_view = new Uint8Array(result_buffer);
-
-            // let bytes = [];
-            // for (let i = 0; i < read_len; i++) {
-            //     let byte = Module.getValue(buffer + i, 'i8');
-            //     result_view[i] = byte;
-            // }
-
             // Now pass the data to the callback
-            fd_ch.tlsConn._read_cb(fd_ch.tlsConn, result_buffer);
+            wasmFD.socket._read_cb(wasmFD.socket, result_buffer);
+        } else {
+            // Just call the callback so it can release teh mutex
+            wasmFD.socket._read_cb(wasmFD.socket, undefined);
         }
     }
+
 });
+
+// /**
+//  *  acquireTLSReadLock
+//  * 
+//  *  OpenSSL handles are NOT thread-safe, so we must synchronize our access to it.
+//  * 
+//  */
+// EM_ASYNC_JS(void, acquireTLSReadLock, (int fd), {
+//     console.log("wasm.acquireTLSReadLock() --> for fd[%d]", fd);
+//     const wasmFD = _zitiContext._wasmFDsById.get( fd );
+//     if (wasmFD) {
+//         await wasmFD.socket.acquireTLSReadLock();
+//     }
+//     console.log("wasm.acquireTLSReadLock() --> LOCK ACQUIRED");
+// });
+
+// /**
+//  *  releaseTLSReadLock
+//  * 
+//  *  OpenSSL handles are NOT thread-safe, so we must synchronize our access to it.
+//  * 
+//  */
+// EM_JS(void, releaseTLSReadLock, (int fd), {
+//     console.log("wasm.releaseTLSReadLock() <-- for fd[%d]", fd);
+//     const wasmFD = _zitiContext._wasmFDsById.get( fd );
+//     if (wasmFD) {
+//         wasmFD.socket.releaseTLSReadLock();
+//     }
+//     console.log("wasm.releaseTLSReadLock() <-- LOCK RELEASED");
+//     return;
+// });
 
 int tls_read(SSL *ssl, void *buffer, int len, void *memory)
 {
     /* Failure till we know it's a success */
     int rc = -1;
 
+    int fd = SSL_get_fd(ssl);
+
     if ((rc = SSL_read(ssl, buffer, (int) len)) < 0) {
-        printf("SSL_read failed, Cannot read from the stream\n");
+        // printf("wasm.tls_read() for fd[%d] len[%d] SSL_read() failed with rc=[%d], Cannot read from the stream\n", fd, len, rc);
+    } else {
+        // printf("wasm.tls_read(): SSL_read returned... data is... \n");
+        // hexdump(buffer, rc);
     }
 
-    // printf("tls_read(): SSL_read returned... data is... \n");
-    // hexdump(buffer, len);
-
     /* Execute the callback */
-    ziti_read_cb( SSL_get_fd(ssl), buffer, rc, memory );
+    ziti_read_cb( fd, buffer, rc, memory );
 
     return rc;
 }
