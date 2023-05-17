@@ -81,7 +81,7 @@ SSL_CTX *ssl_CTX_new()
 
     // if (!(ctx = SSL_CTX_new(TLSv1_3_client_method()))) {
     if (!(ctx = SSL_CTX_new(TLS_client_method()))) {
-        fprintf(stderr, "Cannot create a SSL_CTX\n");
+        printf("Cannot create a SSL_CTX\n");
         return NULL;
     }
 
@@ -114,7 +114,7 @@ SSL_CTX *ssl_CTX_add_private_key(SSL_CTX *ctx, EVP_PKEY *pkey)
 {
     /* Load the key */
     if (SSL_CTX_use_PrivateKey(ctx, pkey) != 1) {
-        fprintf(stderr, "Cannot load private key into SSL_CTX\n");
+        printf("Cannot load private key into SSL_CTX\n");
         return NULL;
     }
 
@@ -141,7 +141,7 @@ SSL_CTX *ssl_CTX_add_certificate(SSL_CTX *ctx, int certPemPointer)
 
     /* Load the certificate */
     if (SSL_CTX_use_certificate(ctx, x509) != 1) {
-        fprintf(stderr, "Cannot load client's certificate file\n");
+        printf("Cannot load client's certificate file\n");
         return NULL;
     }
 
@@ -166,7 +166,7 @@ SSL_CTX *ssl_CTX_add_extra_chain_cert(SSL_CTX *ctx, int casPemPointer)
 
     /* Load the CAs */
     if (SSL_CTX_add_extra_chain_cert(ctx, x509) != 1) {
-        fprintf(stderr, "Cannot load CAs certificate file\n");
+        printf("Cannot load CAs certificate file\n");
         return NULL;
     }
 
@@ -186,7 +186,7 @@ SSL_CTX *ssl_CTX_add1_to_CA_list(SSL_CTX *ctx, int casPemPointer)
 
     /* Load the CAs */
     if (SSL_CTX_add1_to_CA_list(ctx, x509) != 1) {
-        fprintf(stderr, "Cannot load CAs certificate file\n");
+        printf("Cannot load CAs certificate file\n");
         return NULL;
     }
 
@@ -204,7 +204,7 @@ SSL_CTX *ssl_CTX_verify_certificate_and_key(SSL_CTX *ctx)
 {
     /* Verify that the certificate and the key match */
     if (SSL_CTX_check_private_key(ctx) != 1) {
-        fprintf(stderr, "Client's certificate and key don't match\n");
+        printf("Client's certificate and key don't match\n");
         return NULL;
     }
 
@@ -218,7 +218,7 @@ SSL *ssl_new(SSL_CTX *ctx)
 
     /* Get a BIO */
     if (!(ssl = SSL_new(ctx))) {
-        fprintf(stderr, "Could not get a SSL object from context\n");
+        printf("Could not get a SSL object from context\n");
         return NULL;
     }
 
@@ -237,7 +237,7 @@ BIO *bio_new_ssl_connect(SSL_CTX *ctx)
 
     /* Get a BIO */
     if (!(sbio = BIO_new_ssl_connect(ctx))) {
-        fprintf(stderr, "Could not get a BIO object from context\n");
+        printf("Could not get a BIO object from context\n");
         return NULL;
     }
 
@@ -310,10 +310,10 @@ int bio_do_connect(BIO *sbio)
 {
     /* Connect to the server */
     if (BIO_do_connect(sbio) < 1) {
-        fprintf(stderr, "Could not connect to the server\n");
+        printf("Could not connect to the server\n");
         SSL     *p_ssl     = NULL;
         BIO_get_ssl(sbio, &p_ssl);
-        fprintf(stderr,"p_ssl state: %s\n",SSL_state_string_long(p_ssl));
+        printf("p_ssl state: %s\n",SSL_state_string_long(p_ssl));
         return -1;
     }
 
@@ -343,9 +343,11 @@ int ssl_do_handshake(SSL *ssl)
 {
     int rc = -1; // Until success, assume failure
 
+    // printf("ssl_do_handshake() entered ssl[%p]\n", ssl);
+
     /* Perform SSL handshake with the server */
     if (SSL_do_handshake(ssl) != 1) {
-        fprintf(stderr, "SSL_do_handshake failed\n");
+        printf("SSL_do_handshake failed\n");
     } else {
         printf("SSL_do_handshake succeeded\n");
         rc = 1; // success
@@ -376,24 +378,30 @@ int tls_write(SSL *ssl, const void *buffer, int len)
     /* Failure till we know it's a success */
     int rc = -1;
 
+    int fd = SSL_get_fd(ssl);
+
+    // printf("wasm.tls_write() entered for fd[%d]\n", fd);
+
     if ((rc = SSL_write(ssl, buffer, (int) len)) != len) {
-        printf("SSL_write failed, Cannot write to the server\n");
+        printf("SSL_write failed, Cannot write to the server: rc[%d] len[%d]\n", rc, len);
+    } else {
+        // printf("wasm.tls_write(): SSL_write returned... rc[%d] \n", rc);
     }
 
     return rc;
 }
 
-static void hexdump(const void *ptr, size_t len)
-{
-    const unsigned char *p = ptr;
-    size_t i, j;
+// static void hexdump(const void *ptr, size_t len)
+// {
+//     const unsigned char *p = ptr;
+//     size_t i, j;
 
-    for (i = 0; i < len; i += j) {
-	for (j = 0; j < 16 && i + j < len; j++)
-	    printf("%s%02x", j? "" : " ", p[i + j]);
-    }
-    printf("\n");
-}
+//     for (i = 0; i < len; i += j) {
+// 	for (j = 0; j < 16 && i + j < len; j++)
+// 	    printf("%s%02x", j? "" : " ", p[i + j]);
+//     }
+//     printf("\n");
+// }
 
 /**
  *  ziti_read_cb
@@ -460,22 +468,25 @@ EM_JS(void, ziti_read_cb, (int fd, void *buffer, int read_len, void *memory), {
 //     return;
 // });
 
-int tls_read(SSL *ssl, void *buffer, int len, void *memory)
+int tls_read(SSL *ssl, void *buffer, int len)
 {
     /* Failure till we know it's a success */
     int rc = -1;
 
+    // printf("wasm.tls_read() entered for ssl[%p] buffer[%p] len[%d]\n", ssl, buffer, len);
+
     int fd = SSL_get_fd(ssl);
 
+    // printf("wasm.tls_read() entered for fd[%d]\n", fd);
+
     if ((rc = SSL_read(ssl, buffer, (int) len)) < 0) {
-        // printf("wasm.tls_read() for fd[%d] len[%d] SSL_read() failed with rc=[%d], Cannot read from the stream\n", fd, len, rc);
+        printf("wasm.tls_read() for fd[%d] len[%d] SSL_read() failed with rc=[%d], Cannot read from the tlsDataQueue\n", fd, len, rc);
     } else {
         // printf("wasm.tls_read(): SSL_read returned... data is... \n");
         // hexdump(buffer, rc);
     }
 
-    /* Execute the callback */
-    ziti_read_cb( fd, buffer, rc, memory );
+    // printf("wasm.tls_read(): exiting rc[%d]\n");
 
     return rc;
 }

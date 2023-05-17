@@ -5,6 +5,7 @@ EMMAKE ?= emmake
 EMCC ?= emcc
 EMCONFIGURE ?= emconfigure
 EMCONFIGURE_JS ?= 0
+# OPENSSL_EMCC_CFLAGS := -g -O2 -fPIC -DNDEBUG -D__STDC_NO_ATOMICS__=1 -DCRYPTO_TDEBUG=1 -fsanitize=address
 OPENSSL_EMCC_CFLAGS := -g -O2 -fPIC -DNDEBUG -D__STDC_NO_ATOMICS__=1 -DCRYPTO_TDEBUG=1
 
 NODE := $(shell if which nodejs >/dev/null 2>&1 ; then echo nodejs; else echo node ; fi)
@@ -12,53 +13,66 @@ NODE := $(shell if which nodejs >/dev/null 2>&1 ; then echo nodejs; else echo no
 #
 #
 #
-EXPORTED_FUNCTIONS = "[\
-  '_malloc',\
-  '_OPENSSL_init',\
-  '_EVP_PKEY_new',\
-  '_EVP_PKEY_paramgen_init',\
-  '_EVP_PKEY_CTX_set_rsa_keygen_bits',\
-  '_EVP_PKEY_paramgen',\
-  '_EVP_PKEY_CTX_new_id',\
-  '_EVP_PKEY_keygen_init',\
-  '_EVP_PKEY_keygen',\
-  '_EVP_PKEY_free',\
-  '_EVP_PKEY_CTX_free',\
-  '_EVP_PKEY_get1_DSA',\
-  '_BIO_new_fp',\
-  '_PEM_write_bio_DSAPrivateKey',\
-  '_DSA_free',\
-  '_EVP_PKEY_free',\
-  '_RSA_new',\
-  '_EVP_PKEY_keygen',\
-  '_createCertificateSigningRequest',\
-  '_cleanup',\
-  '_createBuffer',\
-  '_destroyBuffer',\
-  '_generateKey',\
-  '_generateECKey',\
-  '_getPrivateKeyPEM',\
-  '_getPublicKeyPEM',\
-  '_freeECKey',\
-  '_ssl_CTX_new',\
-  '_ssl_CTX_add_private_key',\
-  '_ssl_CTX_add_certificate',\
-  '_ssl_CTX_add_extra_chain_cert',\
-  '_ssl_CTX_verify_certificate_and_key',\
-  '_ssl_CTX_add_extra_chain_cert',\
-  '_ssl_CTX_add1_to_CA_list',\
-  '_bio_new_ssl_connect',\
-  '_bio_get_ssl',\
-  '_bio_set_conn_hostname',\
-  '_bio_do_connect',\
-  '_ssl_do_handshake',\
-  '_ssl_get_verify_result',\
-  '_ssl_new',\
-  '_ssl_set_fd',\
-  '_ssl_connect',\
-  '_tls_write',\
-  '_tls_read'\
-]"
+EXPORTED_FUNCTIONS = [\
+_fd_kv_alloc,\
+_fd_kv_getItem,\
+_fd_kv_delItem,\
+_fd_kv_addItem,\
+_ziti_awaitTLSDataQueue_timer,\
+_constructTLSDataQueue,\
+_destructTLSDataQueue,\
+_allocateTLSDataBuf,\
+_freeTLSDataBuf,\
+_enqueueTLSData,\
+_dequeueTLSData,\
+_peekTLSData,\
+_isEmptyTLSData,\
+_malloc,\
+_OPENSSL_init,\
+_EVP_PKEY_new,\
+_EVP_PKEY_paramgen_init,\
+_EVP_PKEY_CTX_set_rsa_keygen_bits,\
+_EVP_PKEY_paramgen,\
+_EVP_PKEY_CTX_new_id,\
+_EVP_PKEY_keygen_init,\
+_EVP_PKEY_keygen,\
+_EVP_PKEY_free,\
+_EVP_PKEY_CTX_free,\
+_EVP_PKEY_get1_DSA,\
+_BIO_new_fp,\
+_PEM_write_bio_DSAPrivateKey,\
+_DSA_free,\
+_EVP_PKEY_free,\
+_RSA_new,\
+_EVP_PKEY_keygen,\
+_createCertificateSigningRequest,\
+_cleanup,\
+_createBuffer,\
+_destroyBuffer,\
+_generateKey,\
+_generateECKey,\
+_getPrivateKeyPEM,\
+_getPublicKeyPEM,\
+_freeECKey,\
+_ssl_CTX_new,\
+_ssl_CTX_add_private_key,\
+_ssl_CTX_add_certificate,\
+_ssl_CTX_add_extra_chain_cert,\
+_ssl_CTX_verify_certificate_and_key,\
+_ssl_CTX_add_extra_chain_cert,\
+_ssl_CTX_add1_to_CA_list,\
+_bio_new_ssl_connect,\
+_bio_get_ssl,\
+_bio_set_conn_hostname,\
+_bio_do_connect,\
+_ssl_do_handshake,\
+_ssl_get_verify_result,\
+_ssl_new,\
+_ssl_set_fd,\
+_ssl_connect,\
+_tls_write,\
+_tls_read\
+]
 
 EXPORTED_RUNTIME_FUNCTIONS="[\
   'setValue',\
@@ -93,7 +107,7 @@ libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		--js-library src/js-library.js \
 		--no-entry \
 		-s USE_PTHREADS=0 \
-		-s EXPORTED_FUNCTIONS=$(EXPORTED_FUNCTIONS) \
+		-s EXPORTED_FUNCTIONS="$(EXPORTED_FUNCTIONS)" \
 		-s EXPORTED_RUNTIME_METHODS=$(EXPORTED_RUNTIME_FUNCTIONS) \
 		-s DETERMINISTIC \
 		-s FILESYSTEM=0 \
@@ -111,13 +125,16 @@ libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		-s STANDALONE_WASM \
 		-s WASM_BIGINT \
     -s ASYNCIFY \
-    -s ASYNCIFY_IMPORTS=[ziti_readsocket] \
     -s PROXY_POSIX_SOCKETS=0 \
 		-s WASM=1
 
-# 		-s ASSERTIONS=1 \
+#   -fsanitize=address \
+
+#   -s ASYNCIFY_IMPORTS=[start_ziti_awaitTLSDataQueue_timer] \
+
+# 	-s ASSERTIONS=1 \
 #		-s VERBOSE \
-#    -s MEMORY64=2 \
+#   -s MEMORY64=2 \
 #		-s SAFE_HEAP=1 \
 #		-s SAFE_HEAP_LOG=1 \
 

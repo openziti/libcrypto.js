@@ -409,12 +409,13 @@ int createCertificateSigningRequest(
     int idPointer,
     int nidArrayPointer)
 {
-    free(heapStringPtr);
+    // free(heapStringPtr);
 
     X509_REQ *x509_req = X509_REQ_new();
     X509_REQ_set_version(x509_req, version);
     X509_REQ_set_pubkey(x509_req, keyPointer);
-    str2Name(namePointer, X509_REQ_get_subject_name(x509_req));
+    // str2Name(namePointer, X509_REQ_get_subject_name(x509_req));
+    // str2Name("C=US, ST=NC, L=DZM, O=OpenZiti, OU=browZer, CN=OTF", X509_REQ_get_subject_name(x509_req));
 
     int md_nid;
     const EVP_MD *md;

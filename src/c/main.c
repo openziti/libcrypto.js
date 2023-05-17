@@ -29,6 +29,7 @@ limitations under the License.
 #include <openssl/engine.h>
 #include <openssl/conf.h>
 #include <main.h>
+#include <emscripten.h>
 
 char *heapStringPtr = 0;
 
@@ -70,7 +71,7 @@ int generate_PEM(struct keystruct convertStruct)
     unsigned char *privatePEM;
     BIO_read(pemBio, privatePEM, -1);
     int len = BIO_get_mem_data(pemBio, &privatePEM);
-    heapStringPtr = malloc(len + 1);
+    heapStringPtr = calloc(1, len + 1);
     heapStringPtr[len] = '\0';
     BIO_read(pemBio, heapStringPtr, len);
     BIO_free(pemBio);
@@ -391,4 +392,238 @@ int main()
 {
     //FIPS_mode_set(1);
     return 0;
+}
+
+
+
+///////////////// TLSData
+
+fd_kv_t **p_fd_kv;
+
+bool ziti_awaitTLSDataQueue_timer = false;
+
+void fd_kv_alloc() {
+  // printf("fd_kv_alloc() entered\n");
+  p_fd_kv = calloc(1, sizeof(fd_kv_t));
+  // printf("fd_kv_alloc() p_fd_kv is now [%p]\n", p_fd_kv);
+}
+
+TLSDataQueue *fd_kv_getItem(int fd) {
+  fd_kv_t *ptr;
+  // printf("fd_kv_getItem() entered fd[%d] p_fd_kv[%p]\n", fd, p_fd_kv);
+  for (ptr = *p_fd_kv; ptr != NULL; ptr = ptr->next) {
+    // printf("fd_kv_getItem() inside loop ptr[%p] ptr->fd[%d] ptr->next[%p]\n", ptr, ptr->fd, ptr->next);
+    if (ptr->fd == fd) {
+      // printf("fd_kv_getItem() returning tlsDataQueue[%p]\n", ptr->tlsDataQueue);
+      return ptr->tlsDataQueue;
+    }
+  }
+  // printf("fd_kv_getItem() returning NULL\n");
+  return NULL;
+}
+
+void fd_kv_delItem(int fd) {
+  fd_kv_t *ptr, *prev;
+  // printf("fd_kv_delItem() entered fd[%d]\n", fd);
+  for (ptr = *p_fd_kv, prev = NULL; ptr != NULL; prev = ptr, ptr = ptr->next) {
+    if (ptr->fd == fd) {
+      if (ptr->next != NULL) {
+        if (prev == NULL) {
+          *p_fd_kv = ptr->next;
+        } else {
+          prev->next = ptr->next;
+        }
+      } else if (prev != NULL) {
+        prev->next = NULL;
+      } else {
+        *p_fd_kv = NULL;
+      }
+            
+      free(ptr->tlsDataQueue);
+      free(ptr);
+            
+      return;
+    }
+  }
+}
+
+void fd_kv_addItem(int fd, TLSDataQueue *tlsDataQueue) {
+    // printf("fd_kv_addItem() entered fd[%d] TLSDataQueue[%p]\n", fd, tlsDataQueue);
+    fd_kv_delItem(fd); /* If we already have a item with this key, delete it. */
+    fd_kv_t *d = calloc(1, sizeof(struct fd_kv_t_struct));
+    d->fd = fd;
+    d->tlsDataQueue = tlsDataQueue;
+    d->next = *p_fd_kv;
+    *p_fd_kv = d;
+}
+
+
+TLSDataQueue *constructTLSDataQueue(int fd, int limit) {
+  // printf("constructTLSDataQueue() entered: fd[%d] limit[%d]\n", fd, limit);
+
+  TLSDataQueue *queue = (TLSDataQueue*) calloc(1, sizeof (TLSDataQueue));
+  if (queue == NULL) {
+      return NULL;
+  }
+  if (limit <= 0) {
+      limit = 65535;
+  }
+  queue->fd = fd;
+  queue->limit = limit;
+  queue->size = 0;
+  queue->head = NULL;
+  queue->tail = NULL;
+
+  return queue;
+}
+
+void destructTLSDataQueue(TLSDataQueue *queue) {
+    TLSDataNODE *pN;
+    while (!isEmptyTLSData(queue)) {
+        pN = dequeueTLSData(queue);
+        free(pN);
+    }
+    free(queue);
+}
+
+// static void hexdump(const void *ptr, size_t len)
+// {
+//     const unsigned char *p = ptr;
+//     size_t i, j;
+
+//     for (i = 0; i < len; i += j) {
+// 	    for (j = 0; j < 16 && i + j < len; j++)
+// 	      printf("%s%02x", j? "" : " ", p[i + j]);
+//     }
+//     printf("\n");
+// }
+
+char* allocateTLSDataBuf(int len) {
+  char* buf = calloc( 1, len );
+  // printf("allocateTLSDataBuf() returning buf[%p] len[%d]\n", buf, len);
+  return buf;
+}
+void freeTLSDataBuf(char* buf) {
+  free( buf );
+}
+
+int enqueueTLSData(TLSDataQueue *pQueue, void *buf, int len) {
+  // printf("enqueueTLSData() entered: pQueue[%p] fd[%d] buf[%p] len[%d]\n", pQueue, pQueue->fd, buf, len);
+
+  // Bad parameter
+  if (pQueue == NULL) {
+      return FALSE;
+  }
+  if (pQueue->size >= pQueue->limit) {
+      return FALSE;
+  }
+  // hexdump(buf, len);
+
+  // Before enqueueing a new item, purge any items currently  on the queue that have been completely consumed
+  bool done = false;
+  TLSDataNODE *item = pQueue->head;
+  TLSDataNODE *itemToPurge;
+  do {
+    // printf("enqueueTLSData() purge loop: item[%p]\n", item);
+
+    if (NULL == item) {
+      done = true;
+    } else if ((item->data.offset < item->data.len) || (item->data.len == 0)) {
+      done = true;
+    } else {
+      // printf("enqueueTLSData() need to purge consumed item: item[%p] fd[%d] buf[%p] offset[%d] len[%d]\n", item, pQueue->fd, item->data.buf, item->data.offset, item->data.len);
+      item = item->prev;
+      itemToPurge = dequeueTLSData(pQueue);
+      // printf("enqueueTLSData() freeing buf[%p]\n", itemToPurge->data.buf);
+      free(itemToPurge->data.buf);
+      // printf("enqueueTLSData() freeing item[%p]\n", itemToPurge);
+      free(itemToPurge);
+      if (NULL == item) {
+        done = true;
+      }
+    }
+  }
+  while (!done);
+
+
+  // Allocate a node to track the encrypted data
+  TLSDataNODE *pN = (TLSDataNODE*) calloc(1, sizeof (TLSDataNODE));
+  // printf("enqueueTLSData() allocated new item[%p]\n", pN);
+  pN->data.buf = buf;
+  pN->data.len = len;
+  pN->data.offset = 0;
+  pN->prev = NULL;
+
+  // if the queue is empty
+  if (pQueue->size == 0) {
+      pQueue->head = pN;
+      pQueue->tail = pN;
+  } else {
+      // add item to the end of the queue
+      pQueue->tail->prev = pN;
+      pQueue->tail = pN;
+  }
+
+  pQueue->size++;
+  // printf("enqueueTLSData() exiting, pQueue->size[%d]\n", pQueue->size);
+  return TRUE;
+}
+
+TLSDataNODE * dequeueTLSData(TLSDataQueue *pQueue) {
+  // printf("dequeueTLSData() entered pQueue[%p] fd[%d]\n", pQueue, pQueue->fd);
+
+  // the queue is empty or bad param
+  TLSDataNODE *item;
+  if (isEmptyTLSData(pQueue))
+      return NULL;
+  item = pQueue->head;
+  pQueue->head = (pQueue->head)->prev;
+  pQueue->size--;
+  // printf("dequeueTLSData() exiting, pQueue->size %d] item[%p]\n", pQueue->size, item);
+  return item;
+}
+
+TLSDataNODE * peekTLSData(TLSDataQueue *pQueue) {
+  // printf("peekTLSData() entered pQueue[%p] fd[%d]\n", pQueue, pQueue->fd);
+  TLSDataNODE *item;
+  if (isEmptyTLSData(pQueue))
+      return NULL;
+
+  bool done = false;
+  item = pQueue->head;
+  do {
+    // If this node has NOT been completely consumed, return it
+    if (item->data.offset < item->data.len) {
+      done = true;
+    } else {
+      // printf("peekTLSData() bypassing consumed item pQueue[%p] fd[%d] offset[%d] len[%d]\n", pQueue, pQueue->fd, item->data.offset, item->data.len);
+
+      // Ignore consumed items, and skip to the next item in the queue
+      item = item->prev;
+      if (NULL == item) {
+        done = true;
+      }
+    }
+  }
+  while (!done);
+
+  // printf("peekTLSData() exiting, pQueue->size[%d] item[%p] item.len[%d] item.offset[%d]\n", pQueue->size, item, item->data.len, item->data.offset);
+  return item;
+}
+
+int isEmptyTLSData(TLSDataQueue* pQueue) {
+  // printf("isEmptyTLSData() entered pQueue[%p] fd[%d] pQueue->size[%d]\n", pQueue, pQueue->fd, pQueue->size);
+
+  int ret = FALSE;
+
+  if (pQueue == NULL) {
+      //nop
+  }
+  if (pQueue->size == 0) {
+      ret = TRUE;
+  } else {
+      //nop
+  }
+  // printf("isEmptyTLSData() exiting [%d]\n", ret);
+  return ret;
 }

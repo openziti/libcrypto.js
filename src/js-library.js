@@ -177,18 +177,7 @@ mergeInto(LibraryManager.library, {
       const wasmFD = _zitiContext._wasmFDsById.get( fd );
       if (wasmFD === null) throw new Error('cannot find wasmFD')
 
-
-      // const channel_iterator = _zitiContext._channels.values();
-      // let fd_ch = null;
-      // let ch = channel_iterator.next().value;
-      // while (fd_ch === null && (typeof ch !== 'undefined')) {
-      //   if (ch.id === fd) {
-      //     fd_ch = ch;
-      //   } else {
-      //     ch = channel_iterator.next().value;
-      //   }
-      // }
-      // if (fd_ch === null) throw new Error('cannot find ZitiChannel')
+      // console.log("js-library:fd_write(): entered for fd: ", fd);
 
       // convert WASM memory to JS Buffer so we can send it
 
@@ -198,13 +187,9 @@ mergeInto(LibraryManager.library, {
         var len = HEAP32[iov + 4 >> 2];
         iov += 8;
 
-        var array = new Uint8Array(len);
+        // Form an array that maps the WASM memory so we can pass it to the JS run time
+        var array = new Uint8Array(Module.HEAPU8.buffer, ptr, len);
 
-        for (var j = 0; j < len; j++) {
-          array[j] = HEAPU8[ptr + j];
-        }
-
-        // fd_ch.tlsConn.fd_write(array);
         wasmFD.socket.fd_write(array);
 
         num += len;
