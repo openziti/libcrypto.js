@@ -1,3 +1,7 @@
+## [0.14.1](https://github.com/openziti/libcrypto.js/compare/v0.13.0...v0.14.1) (2023-05-17)
+
+
+
 # [0.13.0](https://github.com/openziti/libcrypto.js/compare/v0.6.22...v0.13.0) (2023-03-30)
 
 
