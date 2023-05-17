@@ -1,3 +1,0 @@
-[submodule "openssl"]
-	path = openssl
-	url = https://github.com/openziti-test-kitchen/openssl
