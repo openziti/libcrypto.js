@@ -144,6 +144,9 @@ class LibCrypto {
       ).asm;
 
       this.init = true;
+
+      // Alloc data structures related to TLS data handling
+      this.fd_kv_alloc();
     }
   }
 
@@ -676,9 +679,9 @@ class LibCrypto {
     return result;
   }
 
-  ssl_do_handshake(ssl, self, cb) {
+  ssl_do_handshake(ssl) {
     if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
-    let result = this.instance.ssl_do_handshake(ssl, self, cb);
+    let result = this.instance.ssl_do_handshake(ssl);
     return result;
   }
 
@@ -686,6 +689,38 @@ class LibCrypto {
     if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
     let result = this.instance.ssl_get_verify_result(ssl);
     return result;
+  }
+
+  fd_kv_alloc() {
+    this.instance.fd_kv_alloc();
+  }
+
+  /**
+   *  
+   */
+   tls_enqueue(fd, jsArrayBuffer) {
+
+    if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+
+    console.log('tls_enqueue() entered: fd: ', fd);
+
+    let { createBuffer, memory } = this.instance;
+    
+    let tlsDataQueue = this.instance.fd_kv_getItem(fd);
+
+    // if there isn't a TLSDataQueue for the specified FD...then allocate one
+    if (!tlsDataQueue) {
+      tlsDataQueue = this.instance.constructTLSDataQueue( fd, 64 );
+      this.instance.fd_kv_addItem(fd, tlsDataQueue);
+    }
+
+    // Copy the incoming chunk of encrypted data from JS memory into WASM memory
+    // let wasmArrayPtr = createBuffer(jsArrayBuffer.byteLength);
+    let wasmArrayPtr = this.instance.allocateTLSDataBuf(jsArrayBuffer.byteLength);
+    let wasmArray = new Uint8Array(memory.buffer, wasmArrayPtr, jsArrayBuffer.byteLength);
+    let dataArray = new Uint8Array(jsArrayBuffer);
+    wasmArray.set(dataArray); // Add the chunk of encrypted data to the queue of data awaiting decryption for this FD
+    this.instance.enqueueTLSData(tlsDataQueue, wasmArrayPtr, jsArrayBuffer.byteLength);
   }
 
   tls_write(ssl, buffer) {
@@ -715,25 +750,22 @@ class LibCrypto {
   tls_read(ssl) {
     if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
 
-    let { createBuffer, destroyBuffer, memory } = this.instance;
+    let { memory } = this.instance;
 
-    let len = 16 * 1024;  // largest TLS record sizew is 16k
+    let len = 64 * 1024;
 
-    let offset = createBuffer( len + 4);  // add 4 padding bytes at the end for now
+    let wasmArrayPtr = this.instance.allocateTLSDataBuf( len );
 
-    let read_len = this.instance.tls_read(ssl, offset, len, memory);
+    let read_len = this.instance.tls_read(ssl, wasmArrayPtr, len);
 
-    let result_buffer = null;
+    // Copy WASM memory to JavaScript memory
+    let jsArray = new Uint8Array(read_len); // alloc new JS array
+    let wasmArray = new Uint8Array(memory.buffer, wasmArrayPtr, read_len);  // Get a view of the wasm array
+    jsArray.set(wasmArray); // copy wasm -> js
 
-    if (read_len > 0) {
-      let wasm_buffer = new Uint8Array(memory.buffer, offset, read_len);
-      result_buffer = new ArrayBuffer(wasm_buffer.byteLength);
-      new Uint8Array(result_buffer).set(new Uint8Array(wasm_buffer));
-    }
-    
-    // destroyBuffer( offset );
+    this.instance.freeTLSDataBuf( wasmArrayPtr );
 
-    return result_buffer;
+    return jsArray;
   }
 
 
@@ -748,9 +780,6 @@ class LibCrypto {
     let result = this.instance.ssl_connect(ssl);
     return result;
   }
-
-
-
 }
 
 export {
