@@ -14,4 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './generateDefines.js';
+
+const char outerWASMstring[] = "outer WASM d01adba3-ce45-44e1-ae28-f639cb502f9c";

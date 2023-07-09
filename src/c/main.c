@@ -1,5 +1,5 @@
 /*
-Copyright Netfoundry, Inc.
+Copyright NetFoundry, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@ limitations under the License.
 #include <emscripten.h>
 
 char *heapStringPtr = 0;
+
+const char whichWASMstring[] = WHICHWASM;
 
 /**
  * 
@@ -371,9 +373,9 @@ int getPublicKeyPEM(EVP_PKEY *pkey) {
   return (int)publicPem;
 }
 
-void freeECKey(EVP_PKEY *pkey) {
-  EVP_PKEY_free(pkey);
-}
+// void freeECKey(EVP_PKEY *pkey) {
+//   EVP_PKEY_free(pkey);
+// }
 
 
 int cleanup()
@@ -584,10 +586,12 @@ TLSDataNODE * dequeueTLSData(TLSDataQueue *pQueue) {
 }
 
 TLSDataNODE * peekTLSData(TLSDataQueue *pQueue) {
-  // printf("peekTLSData() entered pQueue[%p] fd[%d]\n", pQueue, pQueue->fd);
+  // printf("peekTLSData() entered pQueue[%p] fd[%d] pQueue->size[%d]\n", pQueue, pQueue->fd, pQueue->size);
   TLSDataNODE *item;
-  if (isEmptyTLSData(pQueue))
+  if (isEmptyTLSData(pQueue)) {
+    // printf("peekTLSData() isEmptyTLSData says true\n");
       return NULL;
+  }
 
   bool done = false;
   item = pQueue->head;

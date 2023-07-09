@@ -1,5 +1,5 @@
 /*
-Copyright Netfoundry, Inc.
+Copyright NetFoundry, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ SSL_CTX *ssl_CTX_add_private_key(SSL_CTX *ctx, EVP_PKEY *pkey)
 {
     /* Load the key */
     if (SSL_CTX_use_PrivateKey(ctx, pkey) != 1) {
-        printf("Cannot load private key into SSL_CTX\n");
+        printf("ERROR: Cannot load private key into SSL_CTX\n");
         return NULL;
     }
 
@@ -237,7 +237,7 @@ BIO *bio_new_ssl_connect(SSL_CTX *ctx)
 
     /* Get a BIO */
     if (!(sbio = BIO_new_ssl_connect(ctx))) {
-        printf("Could not get a BIO object from context\n");
+        printf("ERROR: Could not get a BIO object from context\n");
         return NULL;
     }
 
@@ -327,17 +327,17 @@ int bio_do_connect(BIO *sbio)
  * 
  *  Locate the connected callback for the specified fd.  If found, invoke it
  */
-EM_JS(void, ziti_connected_cb, (int fd, int rc), {
+// EM_JS(void, ziti_connected_cb, (int fd, int rc), {
 
-    const wasmFD = _zitiContext._wasmFDsById.get( fd );
-    if (wasmFD === null) {
-        throw new Error('cannot find wasmFD');
-    }
+//     const wasmFD = _zitiContext._wasmFDsById.get( fd );
+//     if (wasmFD === null) {
+//         throw new Error('cannot find wasmFD');
+//     }
 
-    if (wasmFD.socket._connected_cb) {
-        wasmFD.socket._connected_cb(wasmFD.socket, rc);
-    }
-});
+//     if (wasmFD.socket._connected_cb) {
+//         wasmFD.socket._connected_cb(wasmFD.socket, rc);
+//     }
+// });
 
 int ssl_do_handshake(SSL *ssl)
 {
@@ -357,7 +357,7 @@ int ssl_do_handshake(SSL *ssl)
     printf("ssl_do_handshake() rc=%d\n", rc);
 
     /* Execute the callback */
-    ziti_connected_cb( SSL_get_fd(ssl), rc );
+    // ziti_connected_cb( SSL_get_fd(ssl), rc );
 
     return 1;
 }
@@ -375,6 +375,7 @@ int ssl_get_verify_result(SSL *ssl)
 
 int tls_write(SSL *ssl, const void *buffer, int len)
 {
+    // printf("wasm.tls_write() entered, ssl[%d] buffer[%p] len[%d]\n", ssl,  buffer, len);
     /* Failure till we know it's a success */
     int rc = -1;
 
@@ -473,7 +474,7 @@ int tls_read(SSL *ssl, void *buffer, int len)
     /* Failure till we know it's a success */
     int rc = -1;
 
-    // printf("wasm.tls_read() entered for ssl[%p] buffer[%p] len[%d]\n", ssl, buffer, len);
+    // printf("wasm.tls_read() entered for ssl[%d] buffer[%p] len[%d]\n", ssl, buffer, len);
 
     int fd = SSL_get_fd(ssl);
 

@@ -14,4 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-export * from './generateDefines.js';
+
+const char innerWASMstring[] = "inner WASM 259d877a-3678-416c-99ab-fa26701028b6 - 1234567890";
