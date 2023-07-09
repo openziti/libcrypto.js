@@ -1,3 +1,12 @@
+# [0.15.0](https://github.com/openziti/libcrypto.js/compare/v0.14.1...v0.15.0) (2023-07-09)
+
+
+### Features
+
+* split WASM ([#163](https://github.com/openziti/libcrypto.js/issues/163)) ([93cff52](https://github.com/openziti/libcrypto.js/commit/93cff5216b0d45275c26ac58d7fb06f8b9d26b6e))
+
+
+
 ## [0.14.1](https://github.com/openziti/libcrypto.js/compare/v0.13.0...v0.14.1) (2023-05-17)
 
 
