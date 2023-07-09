@@ -6,7 +6,8 @@ EMCC ?= emcc
 EMCONFIGURE ?= emconfigure
 EMCONFIGURE_JS ?= 0
 # OPENSSL_EMCC_CFLAGS := -g -O2 -fPIC -DNDEBUG -D__STDC_NO_ATOMICS__=1 -DCRYPTO_TDEBUG=1 -fsanitize=address
-OPENSSL_EMCC_CFLAGS := -g -O2 -fPIC -DNDEBUG -D__STDC_NO_ATOMICS__=1 -DCRYPTO_TDEBUG=1
+# OPENSSL_EMCC_CFLAGS := -g -O2 -fPIC -DNDEBUG -D__STDC_NO_ATOMICS__=1 -DCRYPTO_TDEBUG=1
+OPENSSL_EMCC_CFLAGS := -O2 -fPIC -DNDEBUG -D__STDC_NO_ATOMICS__=1
 
 NODE := $(shell if which nodejs >/dev/null 2>&1 ; then echo nodejs; else echo node ; fi)
 
@@ -53,7 +54,6 @@ _generateKey,\
 _generateECKey,\
 _getPrivateKeyPEM,\
 _getPublicKeyPEM,\
-_freeECKey,\
 _ssl_CTX_new,\
 _ssl_CTX_add_private_key,\
 _ssl_CTX_add_certificate,\
@@ -66,11 +66,13 @@ _bio_get_ssl,\
 _bio_set_conn_hostname,\
 _bio_do_connect,\
 _ssl_do_handshake,\
+_SSL_is_init_finished,\
 _ssl_get_verify_result,\
 _ssl_new,\
 _ssl_set_fd,\
 _ssl_connect,\
 _tls_write,\
+_whichWASMstring,\
 _tls_read\
 ]
 
@@ -92,18 +94,19 @@ export EMCONFIGURE_JS
 #####################
 # OpenSSL libcrypto #
 #####################
-libcrypto: libcrypto.js
+libcrypto: libcrypto.outerTLS.js libcrypto.innerTLS.js
 
-libcrypto.js: libcrypto.wasm
-	@echo +++ libcrypto.js step
+libcrypto.outerTLS.js: libcrypto.outerTLS.wasm
+	@echo +++ libcrypto.outerTLS.js step
 
-# 	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) src/c/main.c src/c/certgen.c src/c/utilities.c \
+libcrypto.innerTLS.js: libcrypto.innerTLS.wasm
+	@echo +++ libcrypto.innerTLS.js step
 
-libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
-	@echo +++ libcrypto.wasm step
-	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) src/c/*.c \
+libcrypto.outerTLS.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
+	@echo +++ libcrypto.outerTLS.wasm step
+	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) -DWHICHWASM='"0123456789"' src/c/*.c \
 		$(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
-		-o lib/libcrypto.wasm.js \
+		-o lib/libcrypto.outerTLS.js \
 		--js-library src/js-library.js \
 		--no-entry \
 		-s USE_PTHREADS=0 \
@@ -119,7 +122,7 @@ libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		-s SINGLE_FILE=0 \
 		-s EXPORT_ES6=1 \
 		-s INVOKE_RUN=0 \
-		-s EXPORT_NAME=createMyModule \
+		-s EXPORT_NAME=libCryptoOuterTLS \
 		-s ENVIRONMENT=web \
 		-s MODULARIZE=1 \
 		-s STANDALONE_WASM \
@@ -138,6 +141,36 @@ libcrypto.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 #		-s SAFE_HEAP=1 \
 #		-s SAFE_HEAP_LOG=1 \
 
+# EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) -DINNERWASM src/c/*.c src/inner/c/*.c \
+
+libcrypto.innerTLS.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
+	@echo +++ libcrypto.innerTLS.wasm step
+	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) -DWHICHWASM='"this is a very long string dude"' src/c/*.c  \
+		$(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
+		-o lib/libcrypto.innerTLS.js \
+		--js-library src/js-library.js \
+		--no-entry \
+		-s USE_PTHREADS=0 \
+		-s EXPORTED_FUNCTIONS="$(EXPORTED_FUNCTIONS)" \
+		-s EXPORTED_RUNTIME_METHODS=$(EXPORTED_RUNTIME_FUNCTIONS) \
+		-s DETERMINISTIC \
+		-s FILESYSTEM=0 \
+		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
+		-s LLD_REPORT_UNDEFINED \
+		-s STRICT=1 \
+    -s ALLOW_MEMORY_GROWTH=1 \
+		-s USE_ES6_IMPORT_META=0 \
+		-s SINGLE_FILE=0 \
+		-s EXPORT_ES6=1 \
+		-s INVOKE_RUN=0 \
+		-s EXPORT_NAME=libCryptoOuterTLS \
+		-s ENVIRONMENT=web \
+		-s MODULARIZE=1 \
+		-s STANDALONE_WASM \
+		-s WASM_BIGINT \
+    -s ASYNCIFY \
+    -s PROXY_POSIX_SOCKETS=0 \
+		-s WASM=1
 
 
 $(OPENSSL_DIR)/libcrypto.a: $(OPENSSL_DIR)/configdata.pm
@@ -180,4 +213,4 @@ $(VERSION).tar.gz $(VERSION).zip: dist/README dist/LICENSE.TXT dist/libcrypto.js
 	zip -r $(VERSION).zip dist
 
 dist/libcrypto.js dist/libcrypto.wasm dist/libcrypto.data: libcrypto.js
-	cp libcrypto.js libcrypto.wasm libcrypto.data dist
+	cp libcrypto.outerTLS.js libcrypto.outerTLS.wasm libcrypto.data dist
