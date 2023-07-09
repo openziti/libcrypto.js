@@ -60,7 +60,7 @@
     "rollup": "rollup -c ./scripts/rollup.config.js && cp lib/libcrypto.outerTLS.wasm dist/esm/libcrypto.outerTLS.wasm && cp lib/libcrypto.innerTLS.wasm dist/esm/libcrypto.innerTLS.wasm",
     "clean": "rimraf lib/* && rimraf dist/*",
     "make-clean": "./scripts/make clean",
-    "make": "rm ./openssl/*.a && ./scripts/make libcrypto",
+    "make": "rimraf ./openssl/*.a && ./scripts/make libcrypto",
     "build": "npm-run-all clean generate:define make rollup",
     "build:rollup": "npm-run-all clean rollup -c ./scripts/rollup.config.js",
     "generate:define": "node ./scripts/generateDefines.js"
