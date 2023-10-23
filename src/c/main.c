@@ -31,15 +31,21 @@ limitations under the License.
 #include <main.h>
 #include <emscripten.h>
 
+const char whichWASMstring[] = WHICHWASM;
+
+const char curtGuardString1[] = "===========================";
+fd_kv_t **p_fd_kv;
+const char curtGuardString2[] = "---------------------------";
+
 char *heapStringPtr = 0;
 
-const char whichWASMstring[] = WHICHWASM;
+static EVP_PKEY_CTX *ctx = NULL;
+
+
 
 /**
  * 
  */
-int __stack_high = 0;
-int __stack_low = 0;
 
 int generate_PEM(struct keystruct convertStruct)
 {
@@ -248,8 +254,6 @@ int generate_PEM(struct keystruct convertStruct)
 //     return (int)heapStringPtr;
 // }
 
-static EVP_PKEY_CTX *ctx = NULL;;
-
 int generateKey(int type)
 {
     EVP_PKEY *pkey = NULL;
@@ -400,12 +404,10 @@ int main()
 
 ///////////////// TLSData
 
-fd_kv_t **p_fd_kv;
-
-bool ziti_awaitTLSDataQueue_timer = false;
-
 void fd_kv_alloc() {
   // printf("fd_kv_alloc() entered\n");
+  // printf("fd_kv_alloc() curtGuardString1 is %s\n", curtGuardString1);
+  // printf("fd_kv_alloc() curtGuardString2 is %s\n", curtGuardString2);
   p_fd_kv = calloc(1, sizeof(fd_kv_t));
   // printf("fd_kv_alloc() p_fd_kv is now [%p]\n", p_fd_kv);
 }
@@ -432,6 +434,7 @@ void fd_kv_delItem(int fd) {
       if (ptr->next != NULL) {
         if (prev == NULL) {
           *p_fd_kv = ptr->next;
+          // printf("fd_kv_delItem() 1:  *p_fd_kv is now [%p]\n", *p_fd_kv);
         } else {
           prev->next = ptr->next;
         }
@@ -439,6 +442,7 @@ void fd_kv_delItem(int fd) {
         prev->next = NULL;
       } else {
         *p_fd_kv = NULL;
+        // printf("fd_kv_delItem() 2:  *p_fd_kv is now [%p]\n", *p_fd_kv);
       }
             
       free(ptr->tlsDataQueue);
@@ -451,12 +455,14 @@ void fd_kv_delItem(int fd) {
 
 void fd_kv_addItem(int fd, TLSDataQueue *tlsDataQueue) {
     // printf("fd_kv_addItem() entered fd[%d] TLSDataQueue[%p]\n", fd, tlsDataQueue);
+    // hexdump(buf, len);
     fd_kv_delItem(fd); /* If we already have a item with this key, delete it. */
     fd_kv_t *d = calloc(1, sizeof(struct fd_kv_t_struct));
     d->fd = fd;
     d->tlsDataQueue = tlsDataQueue;
     d->next = *p_fd_kv;
     *p_fd_kv = d;
+    // printf("fd_kv_addItem() 1:  *p_fd_kv is now [%p]\n", *p_fd_kv);
 }
 
 
@@ -511,6 +517,7 @@ void freeTLSDataBuf(char* buf) {
 
 int enqueueTLSData(TLSDataQueue *pQueue, void *buf, int len) {
   // printf("enqueueTLSData() entered: pQueue[%p] fd[%d] buf[%p] len[%d]\n", pQueue, pQueue->fd, buf, len);
+  // printf("enqueueTLSData() entered, fd[%d] pQueue->size[%d]\n", pQueue->fd, pQueue->size);
 
   // Bad parameter
   if (pQueue == NULL) {
@@ -521,7 +528,7 @@ int enqueueTLSData(TLSDataQueue *pQueue, void *buf, int len) {
   }
   // hexdump(buf, len);
 
-  // Before enqueueing a new item, purge any items currently  on the queue that have been completely consumed
+  // Before enqueueing a new item, purge any items currently on the queue that have been completely consumed
   bool done = false;
   TLSDataNODE *item = pQueue->head;
   TLSDataNODE *itemToPurge;
@@ -560,14 +567,16 @@ int enqueueTLSData(TLSDataQueue *pQueue, void *buf, int len) {
   if (pQueue->size == 0) {
       pQueue->head = pN;
       pQueue->tail = pN;
+    // printf("enqueueTLSData() added item to empty queue\n");
   } else {
       // add item to the end of the queue
       pQueue->tail->prev = pN;
       pQueue->tail = pN;
+    // printf("enqueueTLSData() added item to end of queue\n");
   }
 
   pQueue->size++;
-  // printf("enqueueTLSData() exiting, pQueue->size[%d]\n", pQueue->size);
+  // printf("enqueueTLSData() exiting, fd[%d] pQueue->size[%d]\n", pQueue->fd, pQueue->size);
   return TRUE;
 }
 
@@ -611,7 +620,11 @@ TLSDataNODE * peekTLSData(TLSDataQueue *pQueue) {
   }
   while (!done);
 
-  // printf("peekTLSData() exiting, pQueue->size[%d] item[%p] item.len[%d] item.offset[%d]\n", pQueue->size, item, item->data.len, item->data.offset);
+  // if (NULL != item) {
+  //   printf("peekTLSData() exiting, pQueue->size[%d] item[%p] item.len[%d] item.offset[%d]\n", pQueue->size, item, item->data.len, item->data.offset);
+  // } else {
+  //   printf("peekTLSData() exiting, pQueue->size[%d] item[%p] \n", pQueue->size, item);
+  // }
   return item;
 }
 

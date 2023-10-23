@@ -49,11 +49,11 @@ RUN ./emsdk activate ${EMSCRIPTEN_V}
 # RUN ./emsdk activate sdk-upstream-main-64bit
 
 # #
-WORKDIR /opt/emsdk/upstream
-RUN mv emscripten emscripten-orig
-RUN git clone https://github.com/openziti-test-kitchen/emscripten
-WORKDIR /opt/emsdk/upstream/emscripten
-RUN git checkout remotes/origin/3.0.0-browZer
+# WORKDIR /opt/emsdk/upstream
+# RUN mv emscripten emscripten-orig
+# RUN git clone https://github.com/openziti-test-kitchen/emscripten
+# WORKDIR /opt/emsdk/upstream/emscripten
+# RUN git checkout remotes/origin/3.0.0-browZer
 
 # Ensure 'acorn' is installed
 RUN npm install

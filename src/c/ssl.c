@@ -98,7 +98,7 @@ SSL_CTX *ssl_CTX_new()
     // Set the cipher list
     const char *cipher_list = "TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256:TLS_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_256_CBC_SHA";
     int rc = SSL_CTX_set_ciphersuites(ctx, cipher_list);
-    printf("ssl_CTX_new, SSL_CTX_set_ciphersuites returned [%d]\n", rc);
+    // printf("ssl_CTX_new, SSL_CTX_set_ciphersuites returned [%d]\n", rc);
 
     /* Done, return the context */
     return ctx;
@@ -121,7 +121,7 @@ SSL_CTX *ssl_CTX_add_private_key(SSL_CTX *ctx, EVP_PKEY *pkey)
     // Set the cipher list
     const char *cipher_list = "TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256:TLS_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_256_CBC_SHA";
     int rc = SSL_CTX_set_ciphersuites(ctx, cipher_list);
-    printf("ssl_CTX_add_private_key, SSL_CTX_set_ciphersuites returned [%d]\n", rc);
+    // printf("ssl_CTX_add_private_key, SSL_CTX_set_ciphersuites returned [%d]\n", rc);
 
     /* Done, return the context */
     return ctx;
@@ -148,7 +148,7 @@ SSL_CTX *ssl_CTX_add_certificate(SSL_CTX *ctx, int certPemPointer)
     // Set the cipher list
     const char *cipher_list = "TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256:TLS_RSA_WITH_AES_128_CBC_SHA:TLS_RSA_WITH_AES_256_CBC_SHA";
     int rc = SSL_CTX_set_ciphersuites(ctx, cipher_list);
-    printf("ssl_CTX_add_certificate, SSL_CTX_set_ciphersuites returned [%d]\n", rc);
+    // printf("ssl_CTX_add_certificate, SSL_CTX_set_ciphersuites returned [%d]\n", rc);
 
     /* Done, return the context */
     return ctx;
@@ -339,27 +339,32 @@ int bio_do_connect(BIO *sbio)
 //     }
 // });
 
-int ssl_do_handshake(SSL *ssl)
+int ssl_do_handshake_for_real(SSL *ssl, int v1, int v2)
 {
-    int rc = -1; // Until success, assume failure
-
-    // printf("ssl_do_handshake() entered ssl[%p]\n", ssl);
+    // printf("ssl_do_handshake_for_real() entered ssl[%p]\n", ssl);
 
     /* Perform SSL handshake with the server */
     if (SSL_do_handshake(ssl) != 1) {
-        printf("SSL_do_handshake failed\n");
+        printf("ssl_do_handshake_for_real failed\n");
+        return -1;
     } else {
-        printf("SSL_do_handshake succeeded\n");
-        rc = 1; // success
+        // printf("ssl_do_handshake_for_real succeeded\n");
+        // rc = 1; // success
+        return 1;
     }
 
     /* Done */
-    printf("ssl_do_handshake() rc=%d\n", rc);
+    // printf("ssl_do_handshake() rc=%d\n", rc);
 
     /* Execute the callback */
     // ziti_connected_cb( SSL_get_fd(ssl), rc );
 
-    return 1;
+    // return 1;
+}
+
+int ssl_do_handshake(SSL *ssl)
+{
+    return ssl_do_handshake_for_real(ssl, 1, 2);
 }
 
 int ssl_get_verify_result(SSL *ssl)

@@ -19,7 +19,6 @@ _fd_kv_alloc,\
 _fd_kv_getItem,\
 _fd_kv_delItem,\
 _fd_kv_addItem,\
-_ziti_awaitTLSDataQueue_timer,\
 _constructTLSDataQueue,\
 _destructTLSDataQueue,\
 _allocateTLSDataBuf,\
@@ -67,6 +66,7 @@ _bio_set_conn_hostname,\
 _bio_do_connect,\
 _ssl_do_handshake,\
 _SSL_is_init_finished,\
+_SSL_get_fd,\
 _ssl_get_verify_result,\
 _ssl_new,\
 _ssl_set_fd,\
@@ -107,17 +107,17 @@ libcrypto.outerTLS.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) -DWHICHWASM='"0123456789"' src/c/*.c \
 		$(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
 		-o lib/libcrypto.outerTLS.js \
+		--pre-js src/asyncifyStubs.js \
 		--js-library src/js-library.js \
 		--no-entry \
-		-s USE_PTHREADS=0 \
 		-s EXPORTED_FUNCTIONS="$(EXPORTED_FUNCTIONS)" \
 		-s EXPORTED_RUNTIME_METHODS=$(EXPORTED_RUNTIME_FUNCTIONS) \
+		-s ASYNCIFY_EXPORTS=ssl_do_handshake,tls_read \
 		-s DETERMINISTIC \
 		-s FILESYSTEM=0 \
 		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
-		-s LLD_REPORT_UNDEFINED \
 		-s STRICT=1 \
-    -s ALLOW_MEMORY_GROWTH=1 \
+    	-s ALLOW_MEMORY_GROWTH=1 \
 		-s USE_ES6_IMPORT_META=0 \
 		-s SINGLE_FILE=0 \
 		-s EXPORT_ES6=1 \
@@ -127,8 +127,8 @@ libcrypto.outerTLS.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		-s MODULARIZE=1 \
 		-s STANDALONE_WASM \
 		-s WASM_BIGINT \
-    -s ASYNCIFY \
-    -s PROXY_POSIX_SOCKETS=0 \
+    	-s ASYNCIFY=2 \
+    	-s PROXY_POSIX_SOCKETS=0 \
 		-s WASM=1
 
 #   -fsanitize=address \
@@ -148,17 +148,17 @@ libcrypto.innerTLS.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) -DWHICHWASM='"this is a very long string dude"' src/c/*.c  \
 		$(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
 		-o lib/libcrypto.innerTLS.js \
+		--pre-js src/asyncifyStubs.js \
 		--js-library src/js-library.js \
 		--no-entry \
-		-s USE_PTHREADS=0 \
 		-s EXPORTED_FUNCTIONS="$(EXPORTED_FUNCTIONS)" \
 		-s EXPORTED_RUNTIME_METHODS=$(EXPORTED_RUNTIME_FUNCTIONS) \
+		-s ASYNCIFY_EXPORTS=ssl_do_handshake,tls_read \
 		-s DETERMINISTIC \
 		-s FILESYSTEM=0 \
 		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
-		-s LLD_REPORT_UNDEFINED \
 		-s STRICT=1 \
-    -s ALLOW_MEMORY_GROWTH=1 \
+    	-s ALLOW_MEMORY_GROWTH=1 \
 		-s USE_ES6_IMPORT_META=0 \
 		-s SINGLE_FILE=0 \
 		-s EXPORT_ES6=1 \
@@ -168,8 +168,8 @@ libcrypto.innerTLS.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		-s MODULARIZE=1 \
 		-s STANDALONE_WASM \
 		-s WASM_BIGINT \
-    -s ASYNCIFY \
-    -s PROXY_POSIX_SOCKETS=0 \
+    	-s ASYNCIFY=2 \
+    	-s PROXY_POSIX_SOCKETS=0 \
 		-s WASM=1
 
 

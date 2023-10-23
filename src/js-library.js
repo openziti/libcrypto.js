@@ -89,8 +89,38 @@ mergeInto(LibraryManager.library, {
     return 0;
   },
 
+  __syscall_getegid32: function() {
+    return 0;
+  },
+  __syscall_geteuid32: function() {
+    return 0;
+  },
+  __syscall_getgid32: function() {
+    return 0;
+  },
+  __syscall_getuid32: function() {
+    return 0;
+  },
+  __syscall_connect: function() {
+    return 0;
+  },
+  __syscall_getsockopt: function (fd, level, optname, optval, optlen, d1) {
+    return -50;
+  },
+  __syscall_shutdown: function (fd, how) {
+    return -50;
+  },
+
   _gai_strerror: function(arg1) {
     console.log("_gai_strerror(): args are: ", arg1);
+    return '';
+  },
+  gai_strerror: function(arg1) {
+    console.log("gai_strerror(): args are: ", arg1);
+    return '';
+  },
+  __gai_strerror: function(arg1) {
+    console.log("__gai_strerror(): args are: ", arg1);
     return '';
   },
   
@@ -164,7 +194,8 @@ mergeInto(LibraryManager.library, {
         var len = HEAP32[iov + 4 >> 2];
         iov += 8;
         for (var j = 0; j < len; j++) {
-          SYSCALLS.printChar(fd, HEAPU8[ptr + j]);
+          // SYSCALLS.printChar(fd, HEAPU8[ptr + j]);
+          printChar(fd, HEAPU8[ptr + j]);
         }
         num += len;
       }
