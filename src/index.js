@@ -143,15 +143,15 @@ class LibCrypto {
 
           }
         )
-      ).asm;
+      );
 
       this.init_OuterWASM = true;
 
-      let pstring = this.readString(this.instance_OuterWASM, this.instance_OuterWASM.whichWASMstring);
-      console.log('initialize_OuterWASM() whichWASMstring is: ', pstring);
+      let pstring = this.readString(this.instance_OuterWASM, this.instance_OuterWASM._whichWASMstring);
+      // console.log('initialize_OuterWASM() whichWASMstring is: ', pstring);
 
       // Alloc data structures related to TLS data handling
-      this.fd_kv_alloc(this.instance_OuterWASM);
+      this.instance_OuterWASM._fd_kv_alloc(this.instance_OuterWASM);
     }
   }
 
@@ -172,15 +172,15 @@ class LibCrypto {
 
           }
         )
-      ).asm;
+      );
 
       this.init_InnerWASM = true;
 
-      let pstring = this.readString(this.instance_InnerWASM, this.instance_InnerWASM.whichWASMstring);
-      console.log('initialize_InnerWASM() whichWASMstring is: ', pstring);
+      let pstring = this.readString(this.instance_InnerWASM, this.instance_InnerWASM._whichWASMstring);
+      // console.log('initialize_InnerWASM() whichWASMstring is: ', pstring);
 
       // Alloc data structures related to Inner-TLS data handling
-      this.fd_kv_alloc(this.instance_InnerWASM);
+      this.instance_InnerWASM._fd_kv_alloc(this.instance_InnerWASM);
     }
   }
 
@@ -239,11 +239,11 @@ class LibCrypto {
    */
   cleanupReferences(wasmInstance) {
     this.validateWASMInstance( wasmInstance );
-    let { destroyBuffer, cleanup } = wasmInstance;
+    let { _destroyBuffer, _cleanup } = wasmInstance;
     while (this.mallocBufferAddresses.length) {
-      destroyBuffer(this.mallocBufferAddresses.pop());
+      _destroyBuffer(this.mallocBufferAddresses.pop());
     }
-    cleanup();
+    _cleanup();
   }
 
   /**
@@ -257,7 +257,7 @@ class LibCrypto {
     let { maxRead } = this,
       _pstr = [],
       _char;
-    let pview = new Uint8Array(wasmInstance.memory.buffer, memloc, maxRead);
+    let pview = new Uint8Array(wasmInstance.HEAPU8.buffer, memloc, maxRead);
     while ((_char = pview[_pstr.length]) && _pstr.length < maxRead) _pstr.push(_char);
     let result = new TextDecoder().decode(new Uint8Array(_pstr));
     if (result.match(/[0-9a-fA-F]{2}:/) && result.match(/:/g).length > result.length / 4) {
@@ -275,16 +275,16 @@ class LibCrypto {
    */
   writeString(wasmInstance, str) {
     if (!str) return 0;
-    let { createBuffer, memory } = wasmInstance;
+    let { _createBuffer } = wasmInstance;
 
     // if (typeof str !== "string") {
     //   str = str.toString(str instanceof Buffer ? "hex" : 16);
     // }
 
     const strBuf = new TextEncoder().encode(str + "\0");
-    let offset = createBuffer(strBuf.length);
+    let offset = _createBuffer(strBuf.length);
     this.mallocBufferAddresses.push(offset);
-    const outBuf = new Uint8Array(memory.buffer, offset, strBuf.length);
+    const outBuf = new Uint8Array(wasmInstance.HEAPU8.buffer, offset, strBuf.length);
     for (let i = 0; i < strBuf.length; i++) {
       outBuf[i] = strBuf[i];
     }
@@ -301,10 +301,10 @@ class LibCrypto {
   writeUint32Array(wasmInstance, uint32Array) {
     this.validateWASMInstance( wasmInstance );
     uint32Array.push(0);
-    let { createBuffer, memory } = wasmInstance;
-    let offset = createBuffer(4 * uint32Array.length);
+    let { _createBuffer } = wasmInstance;
+    let offset = _createBuffer(4 * uint32Array.length);
     this.mallocBufferAddresses.push(offset);
-    new Uint32Array(memory.buffer, offset, uint32Array.length).set(Uint32Array.from(uint32Array));
+    new Uint32Array(wasmInstance.HEAPU8.buffer, offset, uint32Array.length).set(Uint32Array.from(uint32Array));
 
     return offset;
   }
@@ -374,7 +374,7 @@ class LibCrypto {
    */
   generateKey(wasmInstance) {
     this.validateWASMInstance( wasmInstance );
-    let memorylocation = wasmInstance.generateKey(EVP_PKEY_RSA);
+    let memorylocation = wasmInstance._generateKey(EVP_PKEY_RSA);
     return memorylocation;
   }
 
@@ -386,7 +386,7 @@ class LibCrypto {
    */
   generateECKey( wasmInstance ) {
     this.validateWASMInstance( wasmInstance );
-    let memorylocation = wasmInstance.generateECKey();
+    let memorylocation = wasmInstance._generateECKey();
     return memorylocation;
   }
 
@@ -398,7 +398,7 @@ class LibCrypto {
    */
   getPrivateKeyPEM(wasmInstance, pkey) {
     this.validateWASMInstance( wasmInstance );
-    let memorylocation = wasmInstance.getPrivateKeyPEM(pkey);
+    let memorylocation = wasmInstance._getPrivateKeyPEM(pkey);
     let pstring = this.readString(wasmInstance, memorylocation);
     this.cleanupReferences(wasmInstance);
     return pstring;
@@ -412,7 +412,7 @@ class LibCrypto {
    */
   getPublicKeyPEM(wasmInstance, pkey) {
     this.validateWASMInstance( wasmInstance );
-    let memorylocation = wasmInstance.getPublicKeyPEM(pkey);
+    let memorylocation = wasmInstance._getPublicKeyPEM(pkey);
     let pstring = this.readString(wasmInstance, memorylocation);
     this.cleanupReferences(wasmInstance);
     return pstring;
@@ -584,7 +584,7 @@ class LibCrypto {
 
     ]); //TODO requested extensions
 
-    let memLocCSR = wasmInstance.createCertificateSigningRequest(
+    let memLocCSR = wasmInstance._createCertificateSigningRequest(
       curve,
       compressed,
       this.writeString(password),
@@ -633,7 +633,7 @@ class LibCrypto {
    */
    ssl_CTX_new( wasmInstance ) {
     this.validateWASMInstance( wasmInstance );
-    let memorylocation = wasmInstance.ssl_CTX_new();
+    let memorylocation = wasmInstance._ssl_CTX_new();
     return memorylocation;
   }
 
@@ -645,7 +645,7 @@ class LibCrypto {
    */
   ssl_CTX_add_private_key(wasmInstance, ctx, pkey) {
     this.validateWASMInstance( wasmInstance );
-    let memorylocation = wasmInstance.ssl_CTX_add_private_key(ctx, pkey);
+    let memorylocation = wasmInstance._ssl_CTX_add_private_key(ctx, pkey);
     return memorylocation;
   }
 
@@ -661,7 +661,7 @@ class LibCrypto {
     let certPemPointer = this.writeString(wasmInstance, certPem);
     if (certPemPointer == 0) return null;
 
-    let memorylocation = wasmInstance.ssl_CTX_add_certificate(ctx, certPemPointer);
+    let memorylocation = wasmInstance._ssl_CTX_add_certificate(ctx, certPemPointer);
     return memorylocation;
   }
 
@@ -677,7 +677,7 @@ class LibCrypto {
     let casPemPointer = this.writeString(wasmInstance, casPem);
     if (casPemPointer == 0) return null;
 
-    let memorylocation = wasmInstance.ssl_CTX_add1_to_CA_list(ctx, casPemPointer);
+    let memorylocation = wasmInstance._ssl_CTX_add1_to_CA_list(ctx, casPemPointer);
     return memorylocation;
   }
 
@@ -702,26 +702,26 @@ class LibCrypto {
 
   ssl_CTX_verify_certificate_and_key(wasmInstance, ctx) {
     this.validateWASMInstance( wasmInstance );
-    let memorylocation = wasmInstance.ssl_CTX_verify_certificate_and_key(ctx);
+    let memorylocation = wasmInstance._ssl_CTX_verify_certificate_and_key(ctx);
     return memorylocation;
   }
 
   bio_new_ssl_connect(wasmInstance, ctx) {
     this.validateWASMInstance( wasmInstance );
-    let memorylocation = wasmInstance.bio_new_ssl_connect(ctx);
+    let memorylocation = wasmInstance._bio_new_ssl_connect(ctx);
     return memorylocation;
   }
 
   bio_do_connect(wasmInstance, bio) {
     this.validateWASMInstance( wasmInstance );
-    let result = wasmInstance.bio_do_connect(bio);
+    let result = wasmInstance._bio_do_connect(bio);
     return result;
   }
 
 
   ssl_new(wasmInstance, ctx) {
     this.validateWASMInstance( wasmInstance );
-    let memorylocation = wasmInstance.ssl_new(ctx);
+    let memorylocation = wasmInstance._ssl_new(ctx);
     return memorylocation;
   }
 
@@ -733,7 +733,7 @@ class LibCrypto {
 
   bio_get_ssl(wasmInstance, sbio) {
     this.validateWASMInstance( wasmInstance );
-    let memorylocation = wasmInstance.bio_get_ssl(sbio);
+    let memorylocation = wasmInstance._bio_get_ssl(sbio);
     return memorylocation;
   }
 
@@ -742,21 +742,21 @@ class LibCrypto {
 
     let hostnamePointer = this.writeString(wasmInstance, conn_str);
 
-    let result = wasmInstance.bio_set_conn_hostname(sbio, hostnamePointer);
+    let result = wasmInstance._bio_set_conn_hostname(sbio, hostnamePointer);
     return result;
   }
 
-  ssl_do_handshake(wasmInstance, ssl) {
+  async ssl_do_handshake(wasmInstance, ssl) {
     this.validateWASMInstance( wasmInstance );
-    console.log('index.js calling wasmInstance.ssl_do_handshake() ssl is: ', ssl);
-    let result = wasmInstance.ssl_do_handshake(ssl);
-    console.log('index.js returned from wasmInstance.ssl_do_handshake() result is: ', result);
+    // console.log('index.js calling wasmInstance.ssl_do_handshake() ssl is: ', ssl);
+    let result = await wasmInstance._ssl_do_handshake(ssl);
+    // console.log('index.js returned from wasmInstance.ssl_do_handshake() result is: ', result);
     return result;
   }
 
   ssl_is_init_finished(wasmInstance, ssl) {
     this.validateWASMInstance( wasmInstance );
-    let result = wasmInstance.SSL_is_init_finished(ssl);
+    let result = wasmInstance._SSL_is_init_finished(ssl);
     return result;
   }
 
@@ -764,13 +764,13 @@ class LibCrypto {
 
   ssl_get_verify_result(wasmInstance, ssl) {
     this.validateWASMInstance( wasmInstance );
-    let result = wasmInstance.ssl_get_verify_result(ssl);
+    let result = wasmInstance._ssl_get_verify_result(ssl);
     return result;
   }
 
   fd_kv_alloc(wasmInstance) {
     this.validateWASMInstance( wasmInstance );
-    wasmInstance.fd_kv_alloc();
+    wasmInstance._fd_kv_alloc();
   }
 
   /**
@@ -780,75 +780,92 @@ class LibCrypto {
 
     this.validateWASMInstance( wasmInstance );
 
-    console.log('tls_enqueue() entered: fd: ', fd);
+    // console.log(`tls_enqueue() entered: fd[${fd}]`);
 
     let { memory } = wasmInstance;
     
-    let tlsDataQueue = wasmInstance.fd_kv_getItem(fd);
+    let tlsDataQueue = wasmInstance._fd_kv_getItem(fd);
 
     // if there isn't a TLSDataQueue for the specified FD...then allocate one
     if (!tlsDataQueue) {
-      tlsDataQueue = wasmInstance.constructTLSDataQueue( fd, 64 );
-      wasmInstance.fd_kv_addItem(fd, tlsDataQueue);
+      tlsDataQueue = wasmInstance._constructTLSDataQueue( fd, 64 );
+      wasmInstance._fd_kv_addItem(fd, tlsDataQueue);
     }
 
     // Copy the incoming chunk of encrypted data from JS memory into WASM memory
-    // let wasmArrayPtr = createBuffer(jsArrayBuffer.byteLength);
-    let wasmArrayPtr = wasmInstance.allocateTLSDataBuf(jsArrayBuffer.byteLength);
-    let wasmArray = new Uint8Array(memory.buffer, wasmArrayPtr, jsArrayBuffer.byteLength);
+    let wasmArrayPtr = wasmInstance._allocateTLSDataBuf(jsArrayBuffer.byteLength);
+    let wasmArray = new Uint8Array(wasmInstance.HEAPU8.buffer, wasmArrayPtr, jsArrayBuffer.byteLength);
     let dataArray = new Uint8Array(jsArrayBuffer);
     wasmArray.set(dataArray); // Add the chunk of encrypted data to the queue of data awaiting decryption for this FD
-    let result = wasmInstance.enqueueTLSData(tlsDataQueue, wasmArrayPtr, jsArrayBuffer.byteLength);
-    console.log('tls_enqueue() wasmInstance.enqueueTLSData returned: ', result);
+    let result = wasmInstance._enqueueTLSData(tlsDataQueue, wasmArrayPtr, jsArrayBuffer.byteLength);
+    // console.log('tls_enqueue() wasmInstance.enqueueTLSData returned: ', result);
+  }
+
+  /**
+   *  
+   */
+  peekTLSData(wasmInstance, fd) {
+
+    this.validateWASMInstance( wasmInstance );
+    
+    let tlsDataQueue = wasmInstance._fd_kv_getItem(fd);
+
+    if (!tlsDataQueue) {
+      return null;
+    }
+
+    return wasmInstance._peekTLSData(tlsDataQueue);
   }
 
   tls_write(wasmInstance, ssl, jsArrayBuffer) {
 
     this.validateWASMInstance( wasmInstance );
 
-    let { createBuffer, destroyBuffer, memory } = wasmInstance;
+    // let { memory } = wasmInstance;
 
-    console.log('tls_write() ssl is: ', ssl);
-    console.log('tls_write() jsArrayBuffer is: ', jsArrayBuffer);
-    console.log('tls_write() jsArrayBuffer.byteLength is: ', jsArrayBuffer.byteLength);
+    // console.log('tls_write() ssl is: ', ssl);
+    // console.log('tls_write() jsArrayBuffer is: ', jsArrayBuffer);
+    // console.log('tls_write() jsArrayBuffer.byteLength is: ', jsArrayBuffer.byteLength);
 
-    // let offset = createBuffer(buffer.byteLength);
-    let wasmArrayPtr = wasmInstance.allocateTLSDataBuf(jsArrayBuffer.byteLength);
-    console.log('tls_write() memory.buffer is: ', memory.buffer);
-    console.log('tls_write() wasmArrayPtr is: ', wasmArrayPtr);
-    let wasmArray = new Uint8Array(memory.buffer, wasmArrayPtr, jsArrayBuffer.byteLength);
+    let wasmArrayPtr = wasmInstance._allocateTLSDataBuf(jsArrayBuffer.byteLength);
+    // console.log('tls_write() memory.buffer is: ', wasmInstance.HEAPU8.buffer);
+    // console.log('tls_write() wasmArrayPtr is: ', wasmArrayPtr);
+    let wasmArray = new Uint8Array(wasmInstance.HEAPU8.buffer, wasmArrayPtr, jsArrayBuffer.byteLength);
     let dataArray = new Uint8Array(jsArrayBuffer);
     wasmArray.set(dataArray);
-    console.log('tls_write() wasmArray is: ', wasmArray);
+    // console.log('tls_write() wasmArray is: ', wasmArray);
     
-    let result = wasmInstance.tls_write(ssl, wasmArrayPtr, jsArrayBuffer.byteLength);
+    let result = wasmInstance._tls_write(ssl, wasmArrayPtr, jsArrayBuffer.byteLength);
 
-    console.log('tls_write() result is: ', result);
-
-    // destroyBuffer( offset );
+    // console.log('tls_write() result is: ', result);
 
     return result;
   }
 
-  tls_read(wasmInstance, ssl) {
+  async tls_read(wasmInstance, ssl) {
     this.validateWASMInstance( wasmInstance );
 
-    console.log('tls_read() ssl is: ', ssl);
+    // console.log('tls_read() ssl is: ', ssl);
 
-    let { memory } = wasmInstance;
+    // let { memory } = wasmInstance;
 
     let len = 64 * 1024;
 
-    let wasmArrayPtr = wasmInstance.allocateTLSDataBuf( len );
+    let wasmArrayPtr = wasmInstance._allocateTLSDataBuf( len );
 
-    let read_len = wasmInstance.tls_read(ssl, wasmArrayPtr, len);
+    let read_len = await wasmInstance._tls_read(ssl, wasmArrayPtr, len);
+
+    if (read_len < 0) {
+      let fd = await wasmInstance._SSL_get_fd(ssl);
+      console.log('tls_read() wasmInstance._tls_read failed, returned [%d] for fd[%d] ', read_len, fd);
+    }
 
     // Copy WASM memory to JavaScript memory
     let jsArray = new Uint8Array(read_len); // alloc new JS array
-    let wasmArray = new Uint8Array(memory.buffer, wasmArrayPtr, read_len);  // Get a view of the wasm array
+    let wasmArray = new Uint8Array(wasmInstance.HEAPU8.buffer, wasmArrayPtr, read_len);  // Get a view of the wasm array
     jsArray.set(wasmArray); // copy wasm -> js
 
-    wasmInstance.freeTLSDataBuf( wasmArrayPtr );
+    wasmInstance._freeTLSDataBuf( wasmArrayPtr );
 
     return jsArray;
   }
@@ -856,13 +873,13 @@ class LibCrypto {
 
   ssl_set_fd(wasmInstance, ssl, socket) {
     this.validateWASMInstance( wasmInstance );
-    let result = wasmInstance.ssl_set_fd(ssl, socket);
+    let result = wasmInstance._ssl_set_fd(ssl, socket);
     return result;
   }
 
   ssl_connect(wasmInstance, ssl) {
     this.validateWASMInstance( wasmInstance );
-    let result = wasmInstance.ssl_connect(ssl);
+    let result = wasmInstance._ssl_connect(ssl);
     return result;
   }
 }
