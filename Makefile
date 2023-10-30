@@ -11,6 +11,9 @@ OPENSSL_EMCC_CFLAGS := -O2 -fPIC -DNDEBUG -D__STDC_NO_ATOMICS__=1
 
 NODE := $(shell if which nodejs >/dev/null 2>&1 ; then echo nodejs; else echo node ; fi)
 
+GIT_TAG := $(shell git rev-parse --short HEAD)
+@echo  Git tag is: $(GIT_TAG)
+
 #
 #
 #
@@ -94,19 +97,19 @@ export EMCONFIGURE_JS
 #####################
 # OpenSSL libcrypto #
 #####################
-libcrypto: libcrypto.outerTLS.js libcrypto.innerTLS.js
+libcrypto: libcrypto.JSPI.js libcrypto.NO-JSPI.js
 
-libcrypto.outerTLS.js: libcrypto.outerTLS.wasm
-	@echo +++ libcrypto.outerTLS.js step
+libcrypto.JSPI.js: libcrypto.JSPI.wasm
+	@echo +++ libcrypto.JSPI.js step
 
-libcrypto.innerTLS.js: libcrypto.innerTLS.wasm
-	@echo +++ libcrypto.innerTLS.js step
+libcrypto.NO-JSPI.js: libcrypto.NO-JSPI.wasm
+	@echo +++ libcrypto.NO-JSPI.js step
 
-libcrypto.outerTLS.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
-	@echo +++ libcrypto.outerTLS.wasm step
-	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) -DWHICHWASM='"0123456789"' src/c/*.c \
+libcrypto.JSPI.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
+	@echo +++ libcrypto.JSPI.$(GIT_TAG).wasm step
+	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) -DWHICHWASM='"JSPI"' src/c/*.c \
 		$(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
-		-o lib/libcrypto.outerTLS.js \
+		-o lib/libcrypto.JSPI.$(GIT_TAG).js \
 		--pre-js src/asyncifyStubs.js \
 		--js-library src/js-library.js \
 		--no-entry \
@@ -122,7 +125,7 @@ libcrypto.outerTLS.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		-s SINGLE_FILE=0 \
 		-s EXPORT_ES6=1 \
 		-s INVOKE_RUN=0 \
-		-s EXPORT_NAME=libCryptoOuterTLS \
+		-s EXPORT_NAME=libCrypto \
 		-s ENVIRONMENT=web \
 		-s MODULARIZE=1 \
 		-s STANDALONE_WASM \
@@ -141,13 +144,12 @@ libcrypto.outerTLS.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 #		-s SAFE_HEAP=1 \
 #		-s SAFE_HEAP_LOG=1 \
 
-# EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) -DINNERWASM src/c/*.c src/inner/c/*.c \
 
-libcrypto.innerTLS.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
-	@echo +++ libcrypto.innerTLS.wasm step
-	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) -DWHICHWASM='"this is a very long string dude"' src/c/*.c  \
+libcrypto.NO-JSPI.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
+	@echo +++ libcrypto.NO-JSPI.$(GIT_TAG).wasm step
+	EMCC_CFLAGS="$(OPENSSL_EMCC_CFLAGS)" $(EMCC) -DWHICHWASM='"NO-JSPI"' src/c/*.c  \
 		$(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a -Iopenssl/include -Iopenssl/include/openssl -Isrc/c/include \
-		-o lib/libcrypto.innerTLS.js \
+		-o lib/libcrypto.NO-JSPI.$(GIT_TAG).js \
 		--pre-js src/asyncifyStubs.js \
 		--js-library src/js-library.js \
 		--no-entry \
@@ -163,12 +165,12 @@ libcrypto.innerTLS.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		-s SINGLE_FILE=0 \
 		-s EXPORT_ES6=1 \
 		-s INVOKE_RUN=0 \
-		-s EXPORT_NAME=libCryptoOuterTLS \
+		-s EXPORT_NAME=libCrypto \
 		-s ENVIRONMENT=web \
 		-s MODULARIZE=1 \
 		-s STANDALONE_WASM \
 		-s WASM_BIGINT \
-    	-s ASYNCIFY=2 \
+    	-s ASYNCIFY=1 \
     	-s PROXY_POSIX_SOCKETS=0 \
 		-s WASM=1
 
@@ -213,4 +215,4 @@ $(VERSION).tar.gz $(VERSION).zip: dist/README dist/LICENSE.TXT dist/libcrypto.js
 	zip -r $(VERSION).zip dist
 
 dist/libcrypto.js dist/libcrypto.wasm dist/libcrypto.data: libcrypto.js
-	cp libcrypto.outerTLS.js libcrypto.outerTLS.wasm libcrypto.data dist
+	cp libcrypto.JSPI.js libcrypto.JSPI.wasm libcrypto.data dist
