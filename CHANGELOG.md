@@ -1,3 +1,12 @@
+# [0.18.0](https://github.com/openziti/libcrypto.js/compare/v0.16.1...v0.18.0) (2023-10-30)
+
+
+### Features
+
+* Dual-mode: JSPI or NO_JSPI ([#165](https://github.com/openziti/libcrypto.js/issues/165)) ([8e55119](https://github.com/openziti/libcrypto.js/commit/8e55119c1500cffb957bcf2b6174921082a700c7))
+
+
+
 ## [0.16.1](https://github.com/openziti/libcrypto.js/compare/v0.15.0...v0.16.1) (2023-10-23)
 
 
