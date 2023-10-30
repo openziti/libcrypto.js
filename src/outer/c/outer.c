@@ -15,4 +15,4 @@ limitations under the License.
 */
 
 
-const char outerWASMstring[] = "outer WASM d01adba3-ce45-44e1-ae28-f639cb502f9c";
+const char JSPIstring[] = "JSPI WASM d01adba3-ce45-44e1-ae28-f639cb502f9c";

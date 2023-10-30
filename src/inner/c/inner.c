@@ -15,4 +15,4 @@ limitations under the License.
 */
 
 
-const char innerWASMstring[] = "inner WASM 259d877a-3678-416c-99ab-fa26701028b6 - 1234567890";
+const char NO_JSPIstring[] = "NO_JSPI WASM 259d877a-3678-416c-99ab-fa26701028b6";

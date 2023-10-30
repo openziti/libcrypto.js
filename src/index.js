@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import libcrypto_OuterWASM from "../lib/libcrypto.outerTLS.js";
-import libcrypto_InnerWASM from "../lib/libcrypto.innerTLS.js";
+import libcrypto_JSPI from "../lib/libcrypto.JSPI.GITSHA.js";
+import libcrypto_NO_JSPI from "../lib/libcrypto.NO-JSPI.GITSHA.js";
 
 /**
  *
@@ -32,10 +32,8 @@ class LibCrypto {
     this.mallocBufferAddresses = [];
     this.wasi = null;
     this.wasiBytes = null;
-    this.instance_OuterWASM = null;
-    this.init_OuterWASM = false;
-    this.instance_InnerWASM = null;
-    this.init_InnerWASM = false;
+    this.instance = null;
+    this.init = false;
     this.key = null;
     this.maxRead = 1024*64;
   
@@ -126,11 +124,11 @@ class LibCrypto {
    * @function initialize
    * @return {undefined}
    */
-  async initialize_OuterWASM() {
+  async initialize_JSPI() {
     
-    if (!this.init_OuterWASM) {
-      this.instance_OuterWASM = (
-        await libcrypto_OuterWASM(
+    if (!this.init) {
+      this.instance = (
+        await libcrypto_JSPI(
           {
             memory: new WebAssembly.Memory({
               initial: 512,   //  32MB (i.e. 512 64k pages)
@@ -145,21 +143,21 @@ class LibCrypto {
         )
       );
 
-      this.init_OuterWASM = true;
+      this.init = true;
 
-      let pstring = this.readString(this.instance_OuterWASM, this.instance_OuterWASM._whichWASMstring);
-      // console.log('initialize_OuterWASM() whichWASMstring is: ', pstring);
+      let pstring = this.readString(this.instance, this.instance._whichWASMstring);
+      // console.log('initialize_JSPI() whichWASMstring is: ', pstring);
 
       // Alloc data structures related to TLS data handling
-      this.instance_OuterWASM._fd_kv_alloc(this.instance_OuterWASM);
+      this.instance._fd_kv_alloc(this.instance);
     }
   }
 
-  async initialize_InnerWASM() {
+  async initialize_NO_JSPI() {
     
-    if (!this.init_InnerWASM) {
-      this.instance_InnerWASM = (
-        await libcrypto_InnerWASM(
+    if (!this.init) {
+      this.instance = (
+        await libcrypto_NO_JSPI(
           {
             memory: new WebAssembly.Memory({
               initial: 512,   //  32MB (i.e. 512 64k pages)
@@ -174,45 +172,29 @@ class LibCrypto {
         )
       );
 
-      this.init_InnerWASM = true;
+      this.init = true;
 
-      let pstring = this.readString(this.instance_InnerWASM, this.instance_InnerWASM._whichWASMstring);
-      // console.log('initialize_InnerWASM() whichWASMstring is: ', pstring);
+      let pstring = this.readString(this.instance, this.instance._whichWASMstring);
+      // console.log('initialize_NO_JSPI() whichWASMstring is: ', pstring);
 
       // Alloc data structures related to Inner-TLS data handling
-      this.instance_InnerWASM._fd_kv_alloc(this.instance_InnerWASM);
+      this.instance._fd_kv_alloc(this.instance);
     }
   }
 
  /**
-  * Return OuterWASM instance
+  * Return WASM instance
   *
-  * @function getInstance_OuterWASM
+  * @function getWASMInstance
   */
-  async getInstance_OuterWASM() {
-    if (!this.init_OuterWASM) throw Error("Not initialized; call .initialize_OuterWASM() on LibCrypto");
-    return this.instance_OuterWASM;
+  async getWASMInstance() {
+    if (!this.init) throw Error("Not initialized; call .initialize_*() on LibCrypto");
+    return this.instance;
   }
 
- /**
-  * Return inner instance
-  *
-  * @function getInstance_InnerWASM
-  */
-  async getInstance_InnerWASM() {
-    if (!this.init_InnerWASM) {
-      await this.initialize_InnerWASM()
-    }
-    return this.instance_InnerWASM;
-  }
   
   validateWASMInstance( wasmInstance ) {
-    if ( wasmInstance === this.instance_OuterWASM) {
-      // console.log('validateWASMInstance() wasmInstance is: instance_OuterWASM');
-      return;
-    }
-    if ( wasmInstance === this.instance_InnerWASM) {
-      // console.log('validateWASMInstance() wasmInstance is: instance_InnerWASM');
+    if ( wasmInstance === this.instance) {
       return;
     }
     throw Error("invalid WASM instance specified");
