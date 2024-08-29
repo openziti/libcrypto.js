@@ -670,15 +670,15 @@ class LibCrypto {
    * @param {*} casPem 
    * @returns 
    */
-  // ssl_CTX_add_extra_chain_cert(ctx, casPem) {
-  //   if (!this.init) throw Error("Not initialized; call .initialize() on instance.");
+  ssl_CTX_add_extra_chain_cert(wasmInstance, ctx, certPem) {
+    this.validateWASMInstance( wasmInstance );
 
-  //   let casPemPointer = this.writeString(casPem);
-  //   if (casPemPointer == 0) return null;
+    let certPemPointer = this.writeString(wasmInstance, certPem);
+    if (certPemPointer == 0) return null;
 
-  //   let memorylocation = this.instance.ssl_CTX_add_extra_chain_cert(ctx, casPemPointer);
-  //   return memorylocation;
-  // }
+    let memorylocation = wasmInstance._ssl_CTX_add_extra_chain_cert(ctx, certPemPointer);
+    return memorylocation;
+  }
 
   
 
