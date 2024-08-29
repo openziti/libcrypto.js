@@ -1,3 +1,12 @@
+# [0.21.0](https://github.com/openziti/libcrypto.js/compare/v0.20.0...v0.21.0) (2024-08-29)
+
+
+### Features
+
+* Use Cert chain when in HA networks ([#176](https://github.com/openziti/libcrypto.js/issues/176)) ([e5700e6](https://github.com/openziti/libcrypto.js/commit/e5700e628f292166ae2c71ce3b0ef5f05884cbe5))
+
+
+
 # [0.20.0](https://github.com/openziti/libcrypto.js/compare/v0.19.1...v0.20.0) (2024-02-22)
 
 
