@@ -155,7 +155,7 @@ SSL_CTX *ssl_CTX_add_certificate(SSL_CTX *ctx, int certPemPointer)
 }
 
 /**
- * Add CAs to SSL_CTX object
+ * Add intermediate certificate to SSL_CTX object
  * 
  * @return SSL_CTX* 
  */
@@ -166,7 +166,7 @@ SSL_CTX *ssl_CTX_add_extra_chain_cert(SSL_CTX *ctx, int casPemPointer)
 
     /* Load the CAs */
     if (SSL_CTX_add_extra_chain_cert(ctx, x509) != 1) {
-        printf("Cannot load CAs certificate file\n");
+        printf("Cannot load intermediate certificate  \n");
         return NULL;
     }
 
