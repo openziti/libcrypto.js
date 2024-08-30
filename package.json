@@ -83,7 +83,7 @@
   },
   "homepage": "https://github.com/openziti/libcrypto.js",
   "dependencies": {
-    "@types/emscripten": "^1.39.6",
+    "@types/emscripten": "^1.39.12",
     "@wasmer/wasi": "^1.0.2"
   }
 }
