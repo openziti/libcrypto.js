@@ -11,7 +11,7 @@ RUN apt-get update && apt-get -y install \
     zip
 
 # Install Node 14.x+
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get -y install \ 
     nodejs
 
@@ -40,6 +40,7 @@ RUN ./emsdk install ${EMSCRIPTEN_V}
 RUN ./emsdk activate ${EMSCRIPTEN_V}
 
 # Print out information about the emcc toolchain and run some basic sanity tests to check that the required tools are available.
+RUN source /opt/emsdk/emsdk_env.sh
 RUN emcc --check
 
 # ##########################################################################
