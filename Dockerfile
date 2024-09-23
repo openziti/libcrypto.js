@@ -39,6 +39,9 @@ RUN ./emsdk install ${EMSCRIPTEN_V}
 # Make the "latest" SDK "active" for the current user. (writes .emscripten file)
 RUN ./emsdk activate ${EMSCRIPTEN_V}
 
+# Print out information about the emcc toolchain and run some basic sanity tests to check that the required tools are available.
+RUN emcc --check
+
 # ##########################################################################
 # #   We will use our Emscripten github fork with the EMSDK.
 # #   Our Emscripten fork contains support for nested Asyncify calls.
