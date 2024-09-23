@@ -67,7 +67,7 @@ jobs:
           no-cache: true
           push: true
           build-args: |
-            EMSCRIPTEN_V=3.1.54
+            EMSCRIPTEN_V=3.1.67
           tags: |
             ghcr.io/openziti/libcryptojs-build:${{ github.run_number }}
             ghcr.io/openziti/libcryptojs-build:latest
@@ -82,7 +82,7 @@ jobs:
           no-cache: true
           push: true
           build-args: |
-            EMSCRIPTEN_V=3.1.54
+            EMSCRIPTEN_V=3.1.67
           tags: |
             ghcr.io/openziti/libcryptojs-build:${{ github.run_number }}
             ghcr.io/openziti/libcryptojs-build:PR${{ steps.extract_pr_number.outputs.pr_number }}.${{ github.run_number }}
