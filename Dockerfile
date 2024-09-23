@@ -10,10 +10,9 @@ RUN apt-get update && apt-get -y install \
     git-core \
     zip
 
-# Install Node 14.x+
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
-RUN apt-get -y install \ 
-    nodejs
+# Install Node 18.x+
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+RUN apt-get install -y nodejs
 
 RUN apt remove -y cmake
 RUN apt purge -y --auto-remove cmake
