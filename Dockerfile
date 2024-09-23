@@ -10,8 +10,8 @@ RUN apt-get update && apt-get -y install \
     git-core \
     zip
 
-# Install Node 18.x+
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
+# Install Node 16.x+
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
 
 RUN apt remove -y cmake
