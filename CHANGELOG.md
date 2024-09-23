@@ -1,3 +1,12 @@
+# [0.22.0](https://github.com/openziti/libcrypto.js/compare/v0.21.0...v0.22.0) (2024-09-23)
+
+
+### Features
+
+* bump to Emscripten 3.1.67 ([#177](https://github.com/openziti/libcrypto.js/issues/177)) ([2f07493](https://github.com/openziti/libcrypto.js/commit/2f074938c99e550e685ac7ec3edc328b71d87e60))
+
+
+
 # [0.21.0](https://github.com/openziti/libcrypto.js/compare/v0.20.0...v0.21.0) (2024-08-29)
 
 
