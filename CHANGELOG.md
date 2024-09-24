@@ -1,3 +1,12 @@
+# [0.23.0](https://github.com/openziti/libcrypto.js/compare/v0.22.0...v0.23.0) (2024-09-24)
+
+
+### Features
+
+* bump build-container to ubuntu:22.04 ([#178](https://github.com/openziti/libcrypto.js/issues/178)) ([61fa82c](https://github.com/openziti/libcrypto.js/commit/61fa82cd1dfc84cb9b80ebd8227f0394b07bf3ec))
+
+
+
 # [0.22.0](https://github.com/openziti/libcrypto.js/compare/v0.21.0...v0.22.0) (2024-09-23)
 
 
