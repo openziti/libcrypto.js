@@ -1,3 +1,12 @@
+# [0.24.0](https://github.com/openziti/libcrypto.js/compare/v0.23.0...v0.24.0) (2024-09-24)
+
+
+### Features
+
+* bump to 'openziti/libcryptojs-build:0.23.0' ([#179](https://github.com/openziti/libcrypto.js/issues/179)) ([56cb8e0](https://github.com/openziti/libcrypto.js/commit/56cb8e0c4c25f0aabf01156ddac7151e25e5531d))
+
+
+
 # [0.23.0](https://github.com/openziti/libcrypto.js/compare/v0.22.0...v0.23.0) (2024-09-24)
 
 
