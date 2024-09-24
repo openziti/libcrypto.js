@@ -57,7 +57,7 @@ RUN ./emsdk activate ${EMSCRIPTEN_V}
 # RUN git checkout remotes/origin/3.0.0-browZer
 
 # Ensure 'acorn' is installed
-RUN npm install
+# RUN npm install
 
 # RUN cd emscripten/main
 # # Add a git remote link to our fork of emscripten.
