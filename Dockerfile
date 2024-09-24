@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 RUN apt-get update && apt-get -y install \ 
     build-essential \
@@ -10,15 +10,15 @@ RUN apt-get update && apt-get -y install \
     git-core \
     zip
 
-# Install Node 14.x+
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
-RUN apt-get -y install \ 
-    nodejs
+# Install Node
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get install -y nodejs
+RUN node -v
 
 RUN apt remove -y cmake
 RUN apt purge -y --auto-remove cmake
 
-RUN apt-get -y install python3.8 python3.8-dev python3.8-distutils python3.8-venv
+#RUN apt-get -y install python3.8 python3.8-dev python3.8-distutils python3.8-venv
 
 WORKDIR /opt
 
@@ -36,8 +36,9 @@ RUN git pull
 # Download and install the latest SDK tools.
 RUN ./emsdk install ${EMSCRIPTEN_V}
 
-# Make the "latest" SDK "active" for the current user. (writes .emscripten file)
+# Make the SDK "active" for the current user. (writes .emscripten file)
 RUN ./emsdk activate ${EMSCRIPTEN_V}
+
 
 # ##########################################################################
 # #   We will use our Emscripten github fork with the EMSDK.
@@ -56,7 +57,7 @@ RUN ./emsdk activate ${EMSCRIPTEN_V}
 # RUN git checkout remotes/origin/3.0.0-browZer
 
 # Ensure 'acorn' is installed
-RUN npm install
+# RUN npm install
 
 # RUN cd emscripten/main
 # # Add a git remote link to our fork of emscripten.
