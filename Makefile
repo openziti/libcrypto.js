@@ -130,7 +130,7 @@ libcrypto.JSPI.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		-s MODULARIZE=1 \
 		-s STANDALONE_WASM \
 		-s WASM_BIGINT \
-    	-s ASYNCIFY=2 \
+    	-s JSPI \
     	-s PROXY_POSIX_SOCKETS=0 \
 		-s WASM=1
 
