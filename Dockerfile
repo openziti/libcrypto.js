@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 RUN apt-get update && apt-get -y install \ 
     build-essential \
@@ -13,11 +13,12 @@ RUN apt-get update && apt-get -y install \
 # Install Node
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get install -y nodejs
+RUN node -v
 
 RUN apt remove -y cmake
 RUN apt purge -y --auto-remove cmake
 
-RUN apt-get -y install python3.8 python3.8-dev python3.8-distutils python3.8-venv
+#RUN apt-get -y install python3.8 python3.8-dev python3.8-distutils python3.8-venv
 
 WORKDIR /opt
 
@@ -35,12 +36,9 @@ RUN git pull
 # Download and install the latest SDK tools.
 RUN ./emsdk install ${EMSCRIPTEN_V}
 
-# Make the "latest" SDK "active" for the current user. (writes .emscripten file)
+# Make the SDK "active" for the current user. (writes .emscripten file)
 RUN ./emsdk activate ${EMSCRIPTEN_V}
 
-# Print out information about the emcc toolchain and run some basic sanity tests to check that the required tools are available.
-RUN source /opt/emsdk/emsdk_env.sh
-RUN emcc --check
 
 # ##########################################################################
 # #   We will use our Emscripten github fork with the EMSDK.
