@@ -115,12 +115,11 @@ libcrypto.JSPI.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		--no-entry \
 		-s EXPORTED_FUNCTIONS="$(EXPORTED_FUNCTIONS)" \
 		-s EXPORTED_RUNTIME_METHODS=$(EXPORTED_RUNTIME_FUNCTIONS) \
-		-s ASYNCIFY_EXPORTS=ssl_do_handshake,tls_read \
+		-s JSPI_EXPORTS=ssl_do_handshake,tls_read \
 		-s DETERMINISTIC \
 		-s FILESYSTEM=0 \
 		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
     	-s ALLOW_MEMORY_GROWTH=1 \
-		-s USE_ES6_IMPORT_META=0 \
 		-s SINGLE_FILE=0 \
 		-s EXPORT_ES6=1 \
 		-s INVOKE_RUN=0 \
@@ -134,6 +133,8 @@ libcrypto.JSPI.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		-s WASM=1
 
 #   -fsanitize=address \
+
+#	-s USE_ES6_IMPORT_META=0 \
 
 #   -s ASYNCIFY_IMPORTS=[start_ziti_awaitTLSDataQueue_timer] \
 
@@ -154,13 +155,12 @@ libcrypto.NO-JSPI.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		--no-entry \
 		-s EXPORTED_FUNCTIONS="$(EXPORTED_FUNCTIONS)" \
 		-s EXPORTED_RUNTIME_METHODS=$(EXPORTED_RUNTIME_FUNCTIONS) \
-		-s ASYNCIFY_EXPORTS=ssl_do_handshake,tls_read \
+		-s JSPI_EXPORTS=ssl_do_handshake,tls_read \
 		-s DETERMINISTIC \
 		-s FILESYSTEM=0 \
 		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 		-s STRICT=1 \
     	-s ALLOW_MEMORY_GROWTH=1 \
-		-s USE_ES6_IMPORT_META=0 \
 		-s SINGLE_FILE=0 \
 		-s EXPORT_ES6=1 \
 		-s INVOKE_RUN=0 \
