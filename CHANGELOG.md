@@ -1,3 +1,12 @@
+# [0.26.0](https://github.com/openziti/libcrypto.js/compare/v0.25.0...v0.26.0) (2025-12-05)
+
+
+### Features
+
+* use DETERMINISTIC=0 (fix Date.now() debacle) ([#183](https://github.com/openziti/libcrypto.js/issues/183)) ([5cd09e2](https://github.com/openziti/libcrypto.js/commit/5cd09e2b349cc5a5063acdf9562b96681d80446a))
+
+
+
 # [0.25.0](https://github.com/openziti/libcrypto.js/compare/v0.24.2...v0.25.0) (2025-12-04)
 
 
