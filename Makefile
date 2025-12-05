@@ -115,8 +115,8 @@ libcrypto.JSPI.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		--no-entry \
 		-s EXPORTED_FUNCTIONS="$(EXPORTED_FUNCTIONS)" \
 		-s EXPORTED_RUNTIME_METHODS=$(EXPORTED_RUNTIME_FUNCTIONS) \
-		-s JSPI_EXPORTS=ssl_do_handshake,tls_read \
-		-s DETERMINISTIC \
+		-s ASYNCIFY_EXPORTS=ssl_do_handshake,tls_read \
+		-s DETERMINISTIC=0 \
 		-s FILESYSTEM=0 \
 		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
     	-s ALLOW_MEMORY_GROWTH=1 \
@@ -155,8 +155,8 @@ libcrypto.NO-JSPI.wasm: $(OPENSSL_DIR)/libcrypto.a $(OPENSSL_DIR)/libssl.a
 		--no-entry \
 		-s EXPORTED_FUNCTIONS="$(EXPORTED_FUNCTIONS)" \
 		-s EXPORTED_RUNTIME_METHODS=$(EXPORTED_RUNTIME_FUNCTIONS) \
-		-s JSPI_EXPORTS=ssl_do_handshake,tls_read \
-		-s DETERMINISTIC \
+		-s ASYNCIFY_EXPORTS=ssl_do_handshake,tls_read \
+		-s DETERMINISTIC=0 \
 		-s FILESYSTEM=0 \
 		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
 		-s STRICT=1 \
