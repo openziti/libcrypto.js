@@ -139,6 +139,9 @@ class LibCrypto {
 
             thisProgram: 'OpenZiti browZer',
 
+            locateFile: function (path, scriptDirectory) {
+              return path;
+            },
           }
         )
       );
@@ -168,6 +171,9 @@ class LibCrypto {
 
             thisProgram: 'OpenZiti browZer',
 
+            locateFile: function (path, scriptDirectory) {
+              return path;
+            },
           }
         )
       );
